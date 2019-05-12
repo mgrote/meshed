@@ -3,24 +3,27 @@ package mesh
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type NodeType interface {
-	GetName() 		string
-	AcceptChild() 	[]string
+	GetClass() 		string
+	AcceptTypes() 	[]string
 	IsAccepted(string) bool
 }
 
-type Node interface {
-	GetId() primitive.ObjectID
-	AddChild(*node)
-	RemoveChild(*node)
-	AddParent(*node)
-	RemoveParent(*node)
+type MeshNode interface {
+	GetID() primitive.ObjectID
+	SetID(id interface{})
+	AddChild(MeshNode)
+	RemoveChild(MeshNode)
+	AddParent(MeshNode)
+	RemoveParent(MeshNode)
 	HasChild(string, primitive.ObjectID) bool
 	HasParent(string, primitive.ObjectID) bool
 	RemoveAllNodes(string)
-	GetNodes(string) []node
+	GetNodes(string) []MeshNode
 	GetClass() string
 	GetType() NodeType
 	SetType(NodeType)
 	SetContent(interface{})
 	GetContent() interface{}
+	GetVersion() uint16
+	SetVersion(uint16)
 }

@@ -9,8 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
-	"mongodbtest/dbo"
-	"mongodbtest/dbtodo"
+	"meshnode/mesh"
 	"time"
 )
 
@@ -22,10 +21,49 @@ func init() {
 	log.Println("mesh connecting to database", dbname)
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	var err error
-	MongoClient, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://meshdbuser:isAnberf$QuinAfkoarc6@localhost:27017"))
+	MongoClient, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://meshdbuser:misAnberf$QuinAfkoarc6@localhost:27017"))
 	err = MongoClient.Ping(ctx, readpref.Primary())
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Connected to MongoDB!")
+}
+
+// Insert a new database object
+func Insert(doc mesh.MeshNode) {
+	log.Println("inserting", doc.GetID(), doc.GetClass(), doc.GetContent())
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	collection := MongoClient.Database(dbname).Collection(doc.GetClass())
+	// increase db document version
+	version := doc.GetVersion() + 1
+	doc.SetVersion(version)
+	result, err := collection.InsertOne(ctx, doc)
+	if result != nil {
+		// set db id to reference if not exists
+		doc.SetID(result.InsertedID.(primitive.ObjectID))
+	} else {
+		log.Fatal("could not write to database", err)
+	}
+	log.Println("saved", doc.GetID(), doc.GetVersion(), doc.GetClass())
+}
+
+// Save saves the dbo as it is, there is no merge with any existing document,
+// existing documents will be overwritten with this doc.
+// If the doc was never written to the database, it will be created with a new id.
+func Save(doc mesh.MeshNode) {
+	if doc.GetID() == primitive.NilObjectID {
+		Insert(doc)
+	} else {
+		log.Println("updating", doc.GetID(), doc.GetClass(), doc.GetContent())
+		// increase db document version
+		version := doc.GetVersion() + 1
+		doc.SetVersion(version)
+		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+		collection := MongoClient.Database(dbname).Collection(doc.GetClass())
+		filter := bson.M{"_id": doc.GetID()}
+		_ , err := collection.ReplaceOne(ctx, filter, doc)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 }
