@@ -1,7 +1,9 @@
-package mesh
+package meshnode
 
 import (
 	"log"
+	"meshnode/dbclient"
+	"meshnode/mesh"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -12,12 +14,12 @@ type node struct {
 	ID       	primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Version  	uint16             `json:"version"`
 	Class    	string             `json:"class"`
-	nodeType 	NodeType           `json:"-"`
+	nodeType 	mesh.NodeType           `json:"-"`
 	Content  	interface{}        `json:"content"`
 	History  	history            `json:"history"`
-	Children	map[string][]MeshNode	`json:"-" bson:"-"`
+	Children	map[string][]mesh.MeshNode	`json:"-" bson:"-"`
 	ChShadow	map[string][]primitive.ObjectID	`json:"chshadow"`
-	Parents		map[string][]MeshNode	`json:"-" bson:"-"`
+	Parents		map[string][]mesh.MeshNode	`json:"-" bson:"-"`
 	PtShadow	map[string][]primitive.ObjectID	`json:"ptshadow"`
 }
 
@@ -27,27 +29,27 @@ type history struct {
 	LastUser string    `json:"lastuser"`
 }
 
-func NewNode(t NodeType) MeshNode {
+func NewNode(t mesh.NodeType) mesh.MeshNode {
 	n := node{
 		Class:    	t.GetClass(),
 		nodeType: 	t,
 		History:  	newHistory(),
-		Parents: 	make(map[string][]MeshNode),
-		Children: 	make(map[string][]MeshNode),
+		Parents: 	make(map[string][]mesh.MeshNode),
+		Children: 	make(map[string][]mesh.MeshNode),
 		ChShadow:	make(map[string][]primitive.ObjectID),
 		PtShadow:	make(map[string][]primitive.ObjectID),
 	}
 	return &n
 }
 
-func NewNodeWithContent(t NodeType, c interface{}) MeshNode {
+func NewNodeWithContent(t mesh.NodeType, c interface{}) mesh.MeshNode {
 	n := node{
 		Class:    	t.GetClass(),
 		nodeType: 	t,
 		History:  	newHistory(),
 		Content:  	c,
-		Parents: 	make(map[string][]MeshNode),
-		Children: 	make(map[string][]MeshNode),
+		Parents: 	make(map[string][]mesh.MeshNode),
+		Children: 	make(map[string][]mesh.MeshNode),
 		ChShadow:	make(map[string][]primitive.ObjectID),
 		PtShadow:	make(map[string][]primitive.ObjectID),
 	}
@@ -68,15 +70,16 @@ func (n *node) SetID(ident interface{}) {
 	}
 }
 
-func (n *node) AddChild(cn MeshNode) {
+func (n *node) AddChild(cn mesh.MeshNode) {
 	if n.nodeType.IsAccepted(cn.GetClass()) {
 		log.Println("add child", cn.GetID(), "to", n.GetID())
 		if _, ok := n.Children[cn.GetClass()]; !ok {
-			n.Children[cn.GetClass()] = make([]MeshNode, 1)
-			n.ChShadow[cn.GetClass()] = make([]primitive.ObjectID, 1)
+			n.Children[cn.GetClass()] = make([]mesh.MeshNode, 0)
+			n.ChShadow[cn.GetClass()] = make([]primitive.ObjectID, 0)
 		}
 		n.Children[cn.GetClass()] = append(n.Children[cn.GetClass()], cn)
 		n.ChShadow[cn.GetClass()] = append(n.ChShadow[cn.GetClass()], cn.GetID())
+		dbclient.Save(n)
 		if !cn.HasParent(n.GetClass(), n.GetID()) {
 			log.Println("add also to parent", n.GetID(), "to", cn.GetID())
 			cn.AddParent(n)
@@ -84,7 +87,7 @@ func (n *node) AddChild(cn MeshNode) {
 	}
 }
 
-func (n *node) RemoveChild(cn MeshNode) {
+func (n *node) RemoveChild(cn mesh.MeshNode) {
 	if _, ok := n.Children[cn.GetClass()]; ok {
 		if pos, oki := containsId(n.ChShadow[cn.GetClass()], cn.GetID()); oki {
 			if isl, ok := removeIdFromPosition(n.ChShadow[cn.GetClass()], pos); ok {
@@ -100,6 +103,7 @@ func (n *node) RemoveChild(cn MeshNode) {
 				delete(n.Children, cn.GetClass())
 			}
 		}
+		dbclient.Save(n)
 		// check parents
 		if cn.HasParent(n.GetClass(), n.GetID()) {
 			cn.RemoveParent(n)
@@ -107,15 +111,16 @@ func (n *node) RemoveChild(cn MeshNode) {
 	}
 }
 
-func (n *node) AddParent(pn MeshNode) {
+func (n *node) AddParent(pn mesh.MeshNode) {
 	if n.nodeType.IsAccepted(pn.GetClass()) {
 		log.Println("add parent", pn.GetID(),"to", n.GetID())
 		if _, ok := n.Children[pn.GetClass()]; !ok {
-			n.Parents[pn.GetClass()] = make([]MeshNode, 1)
-			n.PtShadow[pn.GetClass()] = make([]primitive.ObjectID, 1)
+			n.Parents[pn.GetClass()] = make([]mesh.MeshNode, 0)
+			n.PtShadow[pn.GetClass()] = make([]primitive.ObjectID, 0)
 		}
 		n.Parents[pn.GetClass()] = append(n.Children[pn.GetClass()], pn)
 		n.PtShadow[pn.GetClass()] = append(n.ChShadow[pn.GetClass()], pn.GetID())
+		dbclient.Save(n)
 		if !pn.HasChild(n.GetClass(), n.GetID()) {
 			log.Println("add also to child", n.GetID(), "to", pn.GetID())
 			pn.AddChild(n)
@@ -123,7 +128,7 @@ func (n *node) AddParent(pn MeshNode) {
 	}
 }
 
-func (n *node) RemoveParent(pn MeshNode) {
+func (n *node) RemoveParent(pn mesh.MeshNode) {
 	if _, ok := n.Parents[pn.GetClass()]; ok {
 		if pos, oki := containsId(n.PtShadow[pn.GetClass()], pn.GetID()); oki {
 			if isl, ok := removeIdFromPosition(n.PtShadow[pn.GetClass()], pos); ok {
@@ -139,6 +144,7 @@ func (n *node) RemoveParent(pn MeshNode) {
 				delete(n.Parents, pn.GetClass())
 			}
 		}
+		dbclient.Save(n)
 		// check children
 		if pn.HasChild(n.GetClass(), n.GetID()) {
 			pn.RemoveChild(n)
@@ -167,7 +173,7 @@ func (n *node) RemoveAllNodes(className string) {
 	delete(n.Parents, className)
 }
 
-func (n *node) GetNodes(className string) []MeshNode {
+func (n *node) GetNodes(className string) []mesh.MeshNode {
 	return n.Children[className]
 }
 
@@ -175,11 +181,11 @@ func (n *node) GetClass() string {
 	return n.Class
 }
 
-func (n *node) GetType() NodeType {
+func (n *node) GetType() mesh.NodeType {
 	return n.nodeType
 }
 
-func (n *node) SetType(t NodeType) {
+func (n *node) SetType(t mesh.NodeType) {
 	n.nodeType = t
 	n.Class = t.GetClass()
 }
@@ -199,6 +205,10 @@ func (n *node) SetVersion(v uint16) {
 func (n *node) GetVersion() uint16 {
 	return n.Version
 }
+
+func (n *node) Save() {
+	dbclient.Save(n)
+}
 // interface MeshNode end
 
 
@@ -211,7 +221,7 @@ func containsId(ids []primitive.ObjectID, id primitive.ObjectID) (int, bool) {
 	return -1, false
 }
 
-func containsNode(ids []MeshNode, n MeshNode) (int, bool) {
+func containsNode(ids []mesh.MeshNode, n mesh.MeshNode) (int, bool) {
 	for it, slid := range ids {
 		if slid == n {
 			return it, true
@@ -231,7 +241,7 @@ func removeIdFromPosition(ids []primitive.ObjectID, pos int) ([]primitive.Object
 	return ids, true
 }
 
-func removeNodeFromPosition(nodes []MeshNode, pos int) ([]MeshNode, bool) {
+func removeNodeFromPosition(nodes []mesh.MeshNode, pos int) ([]mesh.MeshNode, bool) {
 	if len(nodes) == 1 {
 		return nil, false
 	}

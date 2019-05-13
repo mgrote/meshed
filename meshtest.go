@@ -1,30 +1,28 @@
 package main
 
 import (
-	"log"
-	"meshnode/dbclient"
 	"meshnode/domain"
 )
 
 func main() {
 
-	usernode := domain.NewUserNode("tralala", "hihi")
+	userNode := domain.NewUserNode("tralala", "hihi")
 
-	user, ok := usernode.GetContent().(domain.User)
-	if !ok {
-		log.Fatal("could not convert user")
-	}
+	user := domain.GetUser(userNode)
 	user.SetPassword("einszweidrei")
-	usernode.SetContent(user)
-	dbclient.Insert(usernode)
+	userNode.SetContent(user)
+	userNode.Save()
 
-	secondnode := domain.NewUserNode("soso", "nanana")
-	dbclient.Insert(secondnode)
+	secondNode := domain.NewUserNode("soso", "nanana")
+	secondUser := domain.GetUser(secondNode)
+	secondUser.SetPassword("dreivier")
+	secondNode.SetContent(secondUser)
+	secondNode.Save()
 
-	usernode.AddChild(secondnode)
-	dbclient.Save(usernode)
-	dbclient.Save(secondnode)
+	//userNode.AddChild(secondNode)
+	secondNode.AddParent(userNode)
 
+	userNode.RemoveChild(secondNode)
 
 
 }

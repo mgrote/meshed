@@ -4,6 +4,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"meshnode/mesh"
+	"meshnode/meshnode"
 )
 
 type userNodeType struct {
@@ -45,7 +46,9 @@ func NewUserNode(name string, forename string) mesh.MeshNode {
 		Name: name,
 		Forename: forename,
 	}
-	return mesh.NewNodeWithContent(getUserNodeType(), user)
+	node := meshnode.NewNodeWithContent(getUserNodeType(), user)
+	node.Save()
+	return node
 }
 
 func (u *User) SetPassword(pwd string) {
@@ -63,6 +66,15 @@ func (u *User) IsPassword(pwd string) bool {
 	}
 	return u.Password == string(hash)
 }
+
+func GetUser(m mesh.MeshNode) User {
+	user, ok := m.GetContent().(User)
+	if !ok {
+		log.Fatal("could not convert user from ", m)
+	}
+	return user
+}
+
 
 
 

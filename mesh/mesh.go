@@ -26,4 +26,5 @@ type MeshNode interface {
 	GetContent() interface{}
 	GetVersion() uint16
 	SetVersion(uint16)
+	Save()
 }
