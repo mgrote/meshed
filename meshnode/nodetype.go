@@ -14,8 +14,11 @@ func (t NodeType) AcceptTypes() []string {
 }
 
 func (t NodeType) IsAccepted(className string) bool {
-	for _, slid := range t.acceptTypes {
-		if slid == className {
+	if len(t.acceptTypes) == 0 {
+		return true
+	}
+	for _, cn := range t.acceptTypes {
+		if cn == className {
 			return true
 		}
 	}
