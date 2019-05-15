@@ -1,20 +1,20 @@
 package main
 
 import (
-	"meshnode/domain"
+	"meshnode/users"
 )
 
 func main() {
 
-	userNode := domain.NewUserNode("tralala", "hihi")
+	userNode := users.NewNode("tralala", "hihi")
 
-	user := domain.GetUser(userNode)
+	user := users.GetUser(userNode)
 	user.SetPassword("einszweidrei")
 	userNode.SetContent(user)
 	userNode.Save()
 
-	secondNode := domain.NewUserNode("soso", "nanana")
-	secondUser := domain.GetUser(secondNode)
+	secondNode := users.NewNode("soso", "nanana")
+	secondUser := users.GetUser(secondNode)
 	secondUser.SetPassword("dreivier")
 	secondNode.SetContent(secondUser)
 	secondNode.Save()

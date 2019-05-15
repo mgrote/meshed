@@ -1,4 +1,4 @@
-package domain
+package users
 
 import (
 	"golang.org/x/crypto/bcrypt"
@@ -7,32 +7,10 @@ import (
 	"meshnode/meshnode"
 )
 
-type userNodeType struct {
-	acceptTypes	[]string
-	class		string
-}
-
-func getUserNodeType() mesh.NodeType {
-	return userNodeType{
-		[]string{"image", "user"},
+func UserNodeType() mesh.NodeType {
+	return meshnode.NodeType{
+		[]string{"image", "category"},
 		"user"}
-}
-
-func (t userNodeType) GetClass() string {
-	return t.class
-}
-
-func (t userNodeType) AcceptTypes() []string {
-	return t.acceptTypes
-}
-
-func (t userNodeType) IsAccepted(className string) bool {
-	for _, slid := range t.acceptTypes {
-		if slid == className {
-			return true
-		}
-	}
-	return false
 }
 
 type User struct {
@@ -41,12 +19,12 @@ type User struct {
 	Password	string	`json:"password"`
 }
 
-func NewUserNode(name string, forename string) mesh.MeshNode {
+func NewNode(name string, forename string) mesh.MeshNode {
 	user := User{
 		Name: name,
 		Forename: forename,
 	}
-	node := meshnode.NewNodeWithContent(getUserNodeType(), user)
+	node := meshnode.NewNodeWithContent(UserNodeType(), user)
 	node.Save()
 	return node
 }
@@ -70,7 +48,7 @@ func (u *User) IsPassword(pwd string) bool {
 func GetUser(m mesh.MeshNode) User {
 	user, ok := m.GetContent().(User)
 	if !ok {
-		log.Fatal("could not convert user from ", m)
+		log.Fatal("could not convert content from ", m)
 	}
 	return user
 }
