@@ -5,6 +5,14 @@ type NodeType struct {
 	class		string
 }
 
+func NewNodeType(acceptTypes []string, className string) NodeType {
+	return NodeType{
+		acceptTypes: acceptTypes,
+		class: className,
+	}
+}
+
+
 func (t NodeType) GetClass() string {
 	return t.class
 }

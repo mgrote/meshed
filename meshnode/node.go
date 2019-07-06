@@ -111,6 +111,14 @@ func (n *node) RemoveChild(cn mesh.MeshNode) {
 	}
 }
 
+func (n *node) GetChildren(className string) []mesh.MeshNode {
+	// check if parent nodes completely loaded
+	if len(n.ChShadow[className]) != len(n.Children[className]) {
+		n.Children[className] = checkMissingReferences(n.ChShadow[className], n.Children[className], className)
+	}
+	return n.Children[className]
+}
+
 func (n *node) AddParent(pn mesh.MeshNode) {
 	if n.nodeType.IsAccepted(pn.GetClass()) {
 		log.Println("add parent", pn.GetID(),"to", n.GetID())
@@ -152,6 +160,13 @@ func (n *node) RemoveParent(pn mesh.MeshNode) {
 	}
 }
 
+func (n *node) GetParents(className string) []mesh.MeshNode {
+	if len(n.ChShadow[className]) != len(n.Children[className]) {
+		n.Parents[className] = checkMissingReferences(n.PtShadow[className], n.Parents[className], className)
+	}
+	return n.Parents[className]
+}
+
 func (n *node) HasChild(className string, id primitive.ObjectID) bool {
 	if ids, ok := n.ChShadow[className]; ok {
 		_, oki := containsId(ids, id)
@@ -174,7 +189,7 @@ func (n *node) RemoveAllNodes(className string) {
 }
 
 func (n *node) GetNodes(className string) []mesh.MeshNode {
-	return n.Children[className]
+	return append(n.Children[className], n.Parents[className] ...)
 }
 
 func (n *node) GetClass() string {
@@ -228,6 +243,26 @@ func containsNode(ids []mesh.MeshNode, n mesh.MeshNode) (int, bool) {
 		}
 	}
 	return -1, false
+}
+
+// Checks, if nodes are missing in a list with nodes with a list of given ids.
+// Returns a list with already existing and formerly missing nodes.
+// The length of the id list and the returned node list have to be equal.
+func checkMissingReferences(shadowIds []primitive.ObjectID, refs []mesh.MeshNode, className string) []mesh.MeshNode {
+	var nodeIdList = make([]primitive.ObjectID, len(shadowIds))
+CheckExistingId:
+	for _, cid := range shadowIds {
+		for _, child := range refs {
+			if child.GetID() == cid {
+				// if child is already loaded skip adding id to load list
+				// feels hackish
+				continue CheckExistingId
+			}
+		}
+		nodeIdList = append(nodeIdList, cid)
+	}
+	refs = append(refs, dbclient.FindFromIDList(className, nodeIdList)...)
+	return refs
 }
 
 // https://github.com/golang/go/wiki/SliceTricks

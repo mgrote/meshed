@@ -5,18 +5,23 @@ import (
 	"log"
 	"meshnode/mesh"
 	"meshnode/meshnode"
+	"meshnode/model"
 )
 
 func UserNodeType() mesh.NodeType {
-	return meshnode.NodeType{
-		[]string{"image", "category"},
-		"user"}
+	return meshnode.NewNodeType([]string{"image", "category"}, "user")
 }
 
 type User struct {
 	Name		string	`json:"name"`
 	Forename	string	`json:"forename"`
 	Password	string	`json:"password"`
+}
+
+func init() {
+	model.RegisterType("category", func() mesh.MeshNode {
+		return meshnode.NewNodeWithContent(UserNodeType(), User{})
+	})
 }
 
 func NewNode(name string, forename string) mesh.MeshNode {

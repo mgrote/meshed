@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 	"meshnode/mesh"
+	"meshnode/model"
 	"time"
 )
 
@@ -66,4 +67,40 @@ func Save(doc mesh.MeshNode) {
 			log.Fatal(err)
 		}
 	}
+}
+
+func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.MeshNode {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	collection := MongoClient.Database(dbname).Collection(className)
+	findIn := bson.M{"$in" : nodeIdList}
+	filter := bson.M{"_id": findIn}
+	findOptions := options.Find()
+	creator := model.GetType(className)
+	resultList := make([]mesh.MeshNode, len(nodeIdList))
+	cursor, err := collection.Find(ctx, filter, findOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for cursor.Next(ctx) {
+		node := creator()
+		err := cursor.Decode(&node)
+		if err != nil {
+			log.Fatal(err)
+		}
+		resultList = append(resultList, node)
+	}
+	return resultList
+}
+
+func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	collection := MongoClient.Database(dbname).Collection(className)
+	filter := bson.M{"_id": id}
+	creator := model.GetType(className)
+	node := creator()
+	err := collection.FindOne(ctx, filter).Decode(&node)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return node
 }

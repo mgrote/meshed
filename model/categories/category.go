@@ -4,16 +4,21 @@ import (
 	"log"
 	"meshnode/mesh"
 	"meshnode/meshnode"
+	"meshnode/model"
 )
 
 func CategoryNodeType() mesh.NodeType {
-	return meshnode.NodeType{
-		[]string{},
-		"category"}
+	return meshnode.NewNodeType([]string{}, "category")
 }
 
 type Category struct {
-	Name    string
+	Name    string	`json:"name"`
+}
+
+func init() {
+	model.RegisterType("category", func() mesh.MeshNode {
+		return meshnode.NewNodeWithContent(CategoryNodeType(), Category{})
+	})
 }
 
 func NewNode(name string) mesh.MeshNode {
@@ -26,9 +31,9 @@ func NewNode(name string) mesh.MeshNode {
 }
 
 func GetCategory(m mesh.MeshNode) Category {
-	user, ok := m.GetContent().(Category)
+	category, ok := m.GetContent().(Category)
 	if !ok {
 		log.Fatal("could not convert content from ", m)
 	}
-	return user
+	return category
 }

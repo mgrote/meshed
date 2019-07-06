@@ -4,21 +4,26 @@ import (
 	"log"
 	"meshnode/mesh"
 	"meshnode/meshnode"
+	"meshnode/model"
 	"os"
 )
 
 func ImageNodeType() mesh.NodeType {
-	return meshnode.NodeType{
-		[]string{"image", "category"},
-		"image"}
+	return meshnode.NewNodeType([]string{"category", "user"}, "image")
 }
 
 type Image struct {
-	Title    string
-	SubTitle string
-	Filename string
-	Path     string
-	Size     int64
+	Title    string	`json:"title"`
+	SubTitle string	`json:"subtitle"`
+	Filename string	`json:"filename"`
+	Path     string	`json:"path"`
+	Size     int64	`json:"size"`
+}
+
+func init() {
+	model.RegisterType("image", func() mesh.MeshNode {
+		return meshnode.NewNodeWithContent(ImageNodeType(), Image{})
+	})
 }
 
 func NewNode(title string, filename string) mesh.MeshNode {
@@ -49,11 +54,11 @@ func getNode(image Image) mesh.MeshNode {
 }
 
 func GetImage(m mesh.MeshNode) Image {
-	user, ok := m.GetContent().(Image)
+	image, ok := m.GetContent().(Image)
 	if !ok {
 		log.Fatal("could not convert content from ", m)
 	}
-	return user
+	return image
 }
 
 // Exists reports whether the named file or directory exists.

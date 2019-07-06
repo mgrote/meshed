@@ -13,8 +13,10 @@ type MeshNode interface {
 	SetID(id interface{})
 	AddChild(MeshNode)
 	RemoveChild(MeshNode)
+	GetChildren(string) []MeshNode
 	AddParent(MeshNode)
 	RemoveParent(MeshNode)
+	GetParents(string) []MeshNode
 	HasChild(string, primitive.ObjectID) bool
 	HasParent(string, primitive.ObjectID) bool
 	RemoveAllNodes(string)
