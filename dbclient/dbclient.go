@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
+	"meshnode/configurations"
 	"meshnode/mesh"
 	"meshnode/model"
 	"time"
@@ -16,13 +17,14 @@ import (
 
 var MongoClient *mongo.Client
 
-const dbname = "meshdb"
+var dbConfig configurations.DbConfig
 
 func init() {
-	log.Println("mesh connecting to database", dbname)
+	dbConfig = configurations.ReadConfig("/Users/michaelgrote/etc/gotest/db.properties.ini")
+	log.Println("mesh connecting to database", dbConfig.Dbname)
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	var err error
-	MongoClient, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://meshdbuser:misAnberf$QuinAfkoarc6@localhost:27017"))
+	MongoClient, err = mongo.Connect(ctx, options.Client().ApplyURI(dbConfig.Dburl))
 	err = MongoClient.Ping(ctx, readpref.Primary())
 	if err != nil {
 		log.Fatal(err)
@@ -34,7 +36,7 @@ func init() {
 func Insert(doc mesh.MeshNode) {
 	log.Println("inserting", doc.GetID(), doc.GetClass(), doc.GetContent())
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := MongoClient.Database(dbname).Collection(doc.GetClass())
+	collection := MongoClient.Database(dbConfig.Dbname).Collection(doc.GetClass())
 	// increase db document version
 	version := doc.GetVersion() + 1
 	doc.SetVersion(version)
@@ -60,7 +62,7 @@ func Save(doc mesh.MeshNode) {
 		version := doc.GetVersion() + 1
 		doc.SetVersion(version)
 		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		collection := MongoClient.Database(dbname).Collection(doc.GetClass())
+		collection := MongoClient.Database(dbConfig.Dbname).Collection(doc.GetClass())
 		filter := bson.M{"_id": doc.GetID()}
 		_ , err := collection.ReplaceOne(ctx, filter, doc)
 		if err != nil {
@@ -71,7 +73,7 @@ func Save(doc mesh.MeshNode) {
 
 func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.MeshNode {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := MongoClient.Database(dbname).Collection(className)
+	collection := MongoClient.Database(dbConfig.Dbname).Collection(className)
 	findIn := bson.M{"$in" : nodeIdList}
 	filter := bson.M{"_id": findIn}
 	findOptions := options.Find()
@@ -94,7 +96,7 @@ func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.Me
 
 func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := MongoClient.Database(dbname).Collection(className)
+	collection := MongoClient.Database(dbConfig.Dbname).Collection(className)
 	filter := bson.M{"_id": id}
 	creator := model.GetType(className)
 	node := creator()

@@ -265,7 +265,6 @@ CheckExistingId:
 	return refs
 }
 
-// https://github.com/golang/go/wiki/SliceTricks
 func removeIdFromPosition(ids []primitive.ObjectID, pos int) ([]primitive.ObjectID, bool) {
 	if len(ids) == 1 {
 		return nil, false

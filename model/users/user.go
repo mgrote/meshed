@@ -18,8 +18,9 @@ type User struct {
 	Password	string	`json:"password"`
 }
 
+// Registers a method to create this node during deserialisation
 func init() {
-	model.RegisterType("category", func() mesh.MeshNode {
+	model.RegisterType("user", func() mesh.MeshNode {
 		return meshnode.NewNodeWithContent(UserNodeType(), User{})
 	})
 }
@@ -40,14 +41,19 @@ func (u *User) SetPassword(pwd string) {
 		log.Println(err)
 	}
 	u.Password = string(hash)
+	log.Println(u.Password)
 }
 
 func (u *User) IsPassword(pwd string) bool {
-	hash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.MinCost)
+
+	userpw := []byte(u.Password)
+	compare := []byte(pwd)
+	err := bcrypt.CompareHashAndPassword(userpw, compare)
 	if err != nil {
 		log.Println(err)
+		return false
 	}
-	return u.Password == string(hash)
+	return true
 }
 
 func GetUser(m mesh.MeshNode) User {
