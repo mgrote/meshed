@@ -9,9 +9,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
-	"meshnode/configurations"
-	"meshnode/mesh"
-	"meshnode/model"
+	"meshed/meshnode/configurations"
+	"meshed/meshnode/mesh"
+	"meshed/meshnode/model"
 	"time"
 )
 

@@ -2,7 +2,7 @@ package model
 
 import (
 	"log"
-	"meshnode/mesh"
+	"meshed/meshnode/mesh"
 )
 
 var registry = make(map[string]func()mesh.MeshNode)

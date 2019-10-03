@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"meshnode/model/categories"
-	"meshnode/model/images"
-	"meshnode/model/users"
+	"meshed/meshnode/model/categories"
+	"meshed/meshnode/model/images"
+	"meshed/meshnode/model/users"
 )
 
 func main() {

@@ -2,7 +2,7 @@ package users_test
 
 import (
 	"github.com/franela/goblin"
-	"meshnode/model/users"
+	"meshed/meshnode/model/users"
 	"reflect"
 	"testing"
 )

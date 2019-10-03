@@ -2,9 +2,9 @@ package categories
 
 import (
 	"log"
-	"meshnode/mesh"
-	"meshnode/meshnode"
-	"meshnode/model"
+	"meshed/meshnode"
+	"meshed/meshnode/mesh"
+	"meshed/meshnode/model"
 )
 
 func CategoryNodeType() mesh.NodeType {

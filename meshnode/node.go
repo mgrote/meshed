@@ -2,8 +2,8 @@ package meshnode
 
 import (
 	"log"
-	"meshnode/dbclient"
-	"meshnode/mesh"
+	"meshed/meshnode/dbclient"
+	"meshed/meshnode/mesh"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"

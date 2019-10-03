@@ -3,9 +3,9 @@ package users
 import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
-	"meshnode/mesh"
-	"meshnode/meshnode"
-	"meshnode/model"
+	"meshed/meshnode"
+	"meshed/meshnode/mesh"
+	"meshed/meshnode/model"
 )
 
 func UserNodeType() mesh.NodeType {
