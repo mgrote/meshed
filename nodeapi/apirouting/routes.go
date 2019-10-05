@@ -1,8 +1,8 @@
 package apirouting
 
 import (
-	"net/http"
 	"meshed/nodeapi/apihandler"
+	"net/http"
 )
 
 // Route def
@@ -37,7 +37,7 @@ var routes = Routes{
 	},
 	Route{
 		"ShowNode",
-		"POST",
+		"GET",
 		"/node/{" + apihandler.TypeName + "}/{" + apihandler.NodeID + "}",
 		apihandler.ShowNode,
 	},

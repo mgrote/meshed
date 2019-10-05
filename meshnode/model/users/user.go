@@ -23,8 +23,10 @@ type User struct {
 
 // Registers a method to create this node during deserialisation
 func init() {
-	model.RegisterType("user", func() mesh.MeshNode {
-		return meshnode.NewNodeWithContent(UserNodeType(), User{})
+	log.Println("user init called")
+	model.RegisterType("user", func() *mesh.MeshNode {
+		node := meshnode.NewNodeWithContent(UserNodeType(), User{})
+		return &node
 	})
 }
 

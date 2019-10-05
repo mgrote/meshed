@@ -78,34 +78,26 @@ func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.Me
 	filter := bson.M{"_id": findIn}
 	findOptions := options.Find()
 	creator := model.GetType(className)
-	//resultList := make([]mesh.MeshNode, len(nodeIdList))
 	cursor, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return mapNodes(cursor, ctx, creator, len(nodeIdList))
-	//for cursor.Next(ctx) {
-	//	node := creator()
-	//	err := cursor.Decode(&node)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//	resultList = append(resultList, node)
-	//}
-	//return resultList
 }
 
 func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
+	log.Println("find", className, "by id", id.Hex())
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	collection := MongoClient.Database(dbConfig.Dbname).Collection(className)
 	filter := bson.M{"_id": id}
 	creator := model.GetType(className)
 	node := creator()
-	err := collection.FindOne(ctx, filter).Decode(&node)
+	log.Println("got creator", node)
+	err := collection.FindOne(ctx, filter).Decode(*node)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return node
+	return *node
 }
 
 func FindAllByClassName(className string) []mesh.MeshNode {
@@ -119,15 +111,16 @@ func FindAllByClassName(className string) []mesh.MeshNode {
 	return mapNodes(cursor, ctx, creator, 100)
 }
 
-func mapNodes(cursor *mongo.Cursor, ctx context.Context, creator func()mesh.MeshNode, initialLength int) []mesh.MeshNode {
+func mapNodes(cursor *mongo.Cursor, ctx context.Context, creator func()*mesh.MeshNode, initialLength int) []mesh.MeshNode {
 	resultList := make([]mesh.MeshNode, initialLength)
 	for cursor.Next(ctx) {
 		node := creator()
-		err := cursor.Decode(&node)
+		err := cursor.Decode(*node)
+		log.Println("1")
 		if err != nil {
 			log.Fatal(err)
 		}
-		resultList = append(resultList, node)
+		resultList = append(resultList, *node)
 	}
 	return resultList
 }

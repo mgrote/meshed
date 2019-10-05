@@ -25,8 +25,10 @@ type Image struct {
 }
 
 func init() {
-	model.RegisterType("image", func() mesh.MeshNode {
-		return meshnode.NewNodeWithContent(ImageNodeType(), Image{})
+	log.Println("image init called")
+	model.RegisterType("image", func() *mesh.MeshNode {
+		node := meshnode.NewNodeWithContent(ImageNodeType(), Image{})
+		return &node
 	})
 }
 

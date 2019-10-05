@@ -28,8 +28,9 @@ func ListNodeTypes(writer http.ResponseWriter, request *http.Request) {
 // curl localhost:8001/nodes/category
 func ListNodes(writer http.ResponseWriter, request *http.Request) {
 	requestVars := mux.Vars(request)
-	if typeName, err := requestVars[TypeName]; err  {
-		log.Println("Could not find any type from request")
+	log.Println("type",requestVars[TypeName])
+	if typeName, err := requestVars[TypeName]; !err  {
+		log.Println("Could not find any type from request", typeName)
 		writeNotFound(writer)
 	} else {
 		log.Println("List all nodes from type", typeName)
@@ -42,13 +43,13 @@ func ListNodes(writer http.ResponseWriter, request *http.Request) {
 }
 
 // Show one node from this type with this ID
-// curl localhost:8001/nodes/category/9284729
+// curl localhost:8001/nodes/category/5cfe56a4eb825f1c8ed6e248
 func ShowNode(writer http.ResponseWriter, request *http.Request) {
 	requestVars := mux.Vars(request)
-	if typeName, err := requestVars[TypeName]; err  {
+	if typeName, err := requestVars[TypeName]; !err  {
 		log.Println("Could not find any type from request")
 		writeNotFound(writer)
-	} else if nodeid, err := requestVars[NodeID]; err  {
+	} else if nodeid, err := requestVars[NodeID]; !err  {
 		log.Println("Could not find any id from request")
 		writeNotFound(writer)
 	} else {

@@ -2,9 +2,12 @@ package main
 
 import (
 	"log"
+	"meshed/meshnode/dbclient"
 	"meshed/meshnode/model/categories"
 	"meshed/meshnode/model/images"
 	"meshed/meshnode/model/users"
+	"meshed/nodeapi/apirouting"
+	"net/http"
 )
 
 func main() {
@@ -46,6 +49,11 @@ func main() {
 		}
 	}
 
+	loaded := dbclient.FindById(categories.ClassName, catOneNode.GetID())
+	log.Println("got", loaded)
+
+	router := apirouting.NewRouter()
+	log.Fatal(http.ListenAndServe(":8001", router))
 
 
 }

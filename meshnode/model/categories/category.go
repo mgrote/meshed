@@ -18,8 +18,11 @@ type Category struct {
 }
 
 func init() {
-	model.RegisterType(ClassName, func() mesh.MeshNode {
-		return meshnode.NewNodeWithContent(CategoryNodeType(), Category{})
+	log.Println("category init called")
+	model.RegisterType(ClassName, func() *mesh.MeshNode {
+		node := meshnode.NewNodeWithContent(CategoryNodeType(), Category{})
+		return &node
+		//return meshnode.NewNodeWithContent(CategoryNodeType(), Category{})
 	})
 }
 
