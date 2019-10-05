@@ -6,10 +6,13 @@ import (
 	"meshed/meshnode"
 	"meshed/meshnode/mesh"
 	"meshed/meshnode/model"
+	"meshed/meshnode/model/categories"
 )
 
+const ClassName = "user"
+
 func UserNodeType() mesh.NodeType {
-	return meshnode.NewNodeType([]string{"image", "category"}, "user")
+	return meshnode.NewNodeType([]string{"image", categories.ClassName}, ClassName)
 }
 
 type User struct {

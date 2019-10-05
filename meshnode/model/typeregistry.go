@@ -16,4 +16,14 @@ func GetType(className string) func()mesh.MeshNode {
 	return registry[className]
 }
 
+func GetTypes() []string {
+	keys := make([]string, len(registry))
+	i := 0
+	for key := range registry {
+		keys[i] = key
+		i++
+	}
+	return keys
+}
+
 

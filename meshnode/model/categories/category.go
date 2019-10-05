@@ -7,8 +7,10 @@ import (
 	"meshed/meshnode/model"
 )
 
+const ClassName = "category"
+
 func CategoryNodeType() mesh.NodeType {
-	return meshnode.NewNodeType([]string{}, "category")
+	return meshnode.NewNodeType([]string{}, ClassName)
 }
 
 type Category struct {
@@ -16,7 +18,7 @@ type Category struct {
 }
 
 func init() {
-	model.RegisterType("category", func() mesh.MeshNode {
+	model.RegisterType(ClassName, func() mesh.MeshNode {
 		return meshnode.NewNodeWithContent(CategoryNodeType(), Category{})
 	})
 }

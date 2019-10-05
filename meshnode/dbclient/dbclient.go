@@ -78,20 +78,21 @@ func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.Me
 	filter := bson.M{"_id": findIn}
 	findOptions := options.Find()
 	creator := model.GetType(className)
-	resultList := make([]mesh.MeshNode, len(nodeIdList))
+	//resultList := make([]mesh.MeshNode, len(nodeIdList))
 	cursor, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for cursor.Next(ctx) {
-		node := creator()
-		err := cursor.Decode(&node)
-		if err != nil {
-			log.Fatal(err)
-		}
-		resultList = append(resultList, node)
-	}
-	return resultList
+	return mapNodes(cursor, ctx, creator, len(nodeIdList))
+	//for cursor.Next(ctx) {
+	//	node := creator()
+	//	err := cursor.Decode(&node)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//	resultList = append(resultList, node)
+	//}
+	//return resultList
 }
 
 func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
@@ -105,4 +106,28 @@ func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
 		log.Fatal(err)
 	}
 	return node
+}
+
+func FindAllByClassName(className string) []mesh.MeshNode {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	collection := MongoClient.Database(dbConfig.Dbname).Collection(className)
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	creator := model.GetType(className)
+	return mapNodes(cursor, ctx, creator, 100)
+}
+
+func mapNodes(cursor *mongo.Cursor, ctx context.Context, creator func()mesh.MeshNode, initialLength int) []mesh.MeshNode {
+	resultList := make([]mesh.MeshNode, initialLength)
+	for cursor.Next(ctx) {
+		node := creator()
+		err := cursor.Decode(&node)
+		if err != nil {
+			log.Fatal(err)
+		}
+		resultList = append(resultList, node)
+	}
+	return resultList
 }
