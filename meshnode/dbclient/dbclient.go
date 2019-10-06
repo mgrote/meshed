@@ -77,12 +77,11 @@ func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.Me
 	findIn := bson.M{"$in" : nodeIdList}
 	filter := bson.M{"_id": findIn}
 	findOptions := options.Find()
-	creator := model.GetType(className)
 	cursor, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return mapNodes(cursor, ctx, creator, len(nodeIdList))
+	return mapNodes(cursor, ctx, className, len(nodeIdList))
 }
 
 func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
@@ -90,14 +89,19 @@ func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	collection := MongoClient.Database(dbConfig.Dbname).Collection(className)
 	filter := bson.M{"_id": id}
-	creator := model.GetType(className)
+	creator := model.GetTypeConverter(className)
+
 	node := creator()
-	log.Println("got creator", node)
 	err := collection.FindOne(ctx, filter).Decode(*node)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return *node
+	var n mesh.MeshNode
+	n = *node
+	contentConverter := model.GetContentConverter(className)
+	content := contentConverter(n.GetContent().(primitive.D).Map())
+	n.SetContent(content)
+	return n
 }
 
 func FindAllByClassName(className string) []mesh.MeshNode {
@@ -107,20 +111,24 @@ func FindAllByClassName(className string) []mesh.MeshNode {
 	if err != nil {
 		log.Fatal(err)
 	}
-	creator := model.GetType(className)
-	return mapNodes(cursor, ctx, creator, 100)
+	return mapNodes(cursor, ctx, className, 100)
 }
 
-func mapNodes(cursor *mongo.Cursor, ctx context.Context, creator func()*mesh.MeshNode, initialLength int) []mesh.MeshNode {
+func mapNodes(cursor *mongo.Cursor, ctx context.Context, className string, initialLength int) []mesh.MeshNode {
 	resultList := make([]mesh.MeshNode, initialLength)
 	for cursor.Next(ctx) {
+		creator := model.GetTypeConverter(className)
 		node := creator()
 		err := cursor.Decode(*node)
+		contentNode := *node
+		contentConverter := model.GetContentConverter(className)
+		content := contentConverter(contentNode.GetContent().(primitive.D).Map())
+		contentNode.SetContent(content)
 		log.Println("1")
 		if err != nil {
 			log.Fatal(err)
 		}
-		resultList = append(resultList, *node)
+		resultList = append(resultList, contentNode)
 	}
 	return resultList
 }

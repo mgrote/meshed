@@ -6,13 +6,12 @@ import (
 	"meshed/meshnode"
 	"meshed/meshnode/mesh"
 	"meshed/meshnode/model"
-	"meshed/meshnode/model/categories"
 )
 
 const ClassName = "user"
 
 func UserNodeType() mesh.NodeType {
-	return meshnode.NewNodeType([]string{"image", categories.ClassName}, ClassName)
+	return meshnode.NewNodeType([]string{"image", "category"}, ClassName)
 }
 
 type User struct {
@@ -24,10 +23,12 @@ type User struct {
 // Registers a method to create this node during deserialisation
 func init() {
 	log.Println("user init called")
-	model.RegisterType("user", func() *mesh.MeshNode {
+	model.RegisterTypeConverter("user",
+		func() *mesh.MeshNode {
 		node := meshnode.NewNodeWithContent(UserNodeType(), User{})
 		return &node
 	})
+	model.RegisterContentConverter(ClassName, GetFromMap)
 }
 
 func NewNode(name string, forename string) mesh.MeshNode {
@@ -64,9 +65,17 @@ func (u *User) IsPassword(pwd string) bool {
 func GetUser(m mesh.MeshNode) User {
 	user, ok := m.GetContent().(User)
 	if !ok {
-		log.Fatal("could not convert content from ", m)
+		log.Fatal("could not convert content user from ", m)
 	}
 	return user
+}
+
+func GetFromMap(docmap map[string]interface{}) interface{} {
+	return User {
+		Name:     docmap["name"].(string),
+		Forename: docmap["forename"].(string),
+		Password: docmap["password"].(string),
+	}
 }
 
 

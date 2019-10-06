@@ -26,10 +26,11 @@ type Image struct {
 
 func init() {
 	log.Println("image init called")
-	model.RegisterType("image", func() *mesh.MeshNode {
+	model.RegisterTypeConverter("image", func() *mesh.MeshNode {
 		node := meshnode.NewNodeWithContent(ImageNodeType(), Image{})
 		return &node
 	})
+	model.RegisterContentConverter(ClassName, GetFromMap)
 }
 
 func NewNode(title string, filename string) mesh.MeshNode {
@@ -76,4 +77,14 @@ func ReadableFile(file string) bool {
 		}
 	}
 	return true
+}
+
+func GetFromMap(docmap map[string]interface{}) interface{} {
+	return Image {
+		Title:    docmap["title"].(string),
+		SubTitle: docmap["subtitle"].(string),
+		Filename: docmap["filename"].(string),
+		Path:     docmap["path"].(string),
+		Size:     docmap["size"].(int64),
+	}
 }

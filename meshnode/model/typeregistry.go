@@ -5,21 +5,30 @@ import (
 	"meshed/meshnode/mesh"
 )
 
-var registry = make(map[string]func()*mesh.MeshNode)
+var typeregistry = make(map[string]func()*mesh.MeshNode)
+var contentregistry = make(map[string]func(map[string]interface{})interface{})
 
-func RegisterType(className string, creator func()*mesh.MeshNode) {
+func RegisterTypeConverter(className string, creator func()*mesh.MeshNode) {
 	log.Println("registering", className)
-	registry[className] = creator
+	typeregistry[className] = creator
 }
 
-func GetType(className string) func()*mesh.MeshNode {
-	return registry[className]
+func RegisterContentConverter(className string, contentConverter func(map[string]interface{})interface{}) {
+	contentregistry[className] = contentConverter
+}
+
+func GetTypeConverter(className string) func()*mesh.MeshNode {
+	return typeregistry[className]
+}
+
+func GetContentConverter(className string) func(map[string]interface{})interface{} {
+	return contentregistry[className]
 }
 
 func GetTypes() []string {
-	keys := make([]string, len(registry))
+	keys := make([]string, len(typeregistry))
 	i := 0
-	for key := range registry {
+	for key := range typeregistry {
 		keys[i] = key
 		i++
 	}

@@ -8,6 +8,7 @@ import (
 	"meshed/meshnode/dbclient"
 	"meshed/meshnode/model"
 	"net/http"
+	"reflect"
 )
 
 const TypeName = "typename"
@@ -59,6 +60,7 @@ func ShowNode(writer http.ResponseWriter, request *http.Request) {
 			log.Fatal("Could not get ObjectID from", nodeid)
 		}
 		node := dbclient.FindById(typeName, id)
+		log.Println("got node", node.GetContent(), reflect.TypeOf(node.GetContent()), reflect.TypeOf(node))
 		if err := json.NewEncoder(writer).Encode(node); err != nil {
 			log.Fatal("Error while encoding respose")
 		}

@@ -19,11 +19,11 @@ type Category struct {
 
 func init() {
 	log.Println("category init called")
-	model.RegisterType(ClassName, func() *mesh.MeshNode {
+	model.RegisterTypeConverter(ClassName, func() *mesh.MeshNode {
 		node := meshnode.NewNodeWithContent(CategoryNodeType(), Category{})
 		return &node
-		//return meshnode.NewNodeWithContent(CategoryNodeType(), Category{})
 	})
+	model.RegisterContentConverter(ClassName, GetFromMap)
 }
 
 func NewNode(name string) mesh.MeshNode {
@@ -41,4 +41,10 @@ func GetCategory(m mesh.MeshNode) Category {
 		log.Fatal("could not convert content from ", m)
 	}
 	return category
+}
+
+func GetFromMap(docmap map[string]interface{}) interface{} {
+	return Category {
+		Name: 		docmap["name"].(string),
+	}
 }
