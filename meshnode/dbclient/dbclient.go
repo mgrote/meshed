@@ -16,8 +16,8 @@ import (
 )
 
 var MongoClient *mongo.Client
-
 var dbConfig configurations.DbConfig
+var existingCollections []string
 
 func init() {
 	dbConfig = configurations.ReadConfig("/Users/michaelgrote/etc/gotest/db.properties.ini")
@@ -30,6 +30,7 @@ func init() {
 		log.Fatal(err)
 	}
 	fmt.Println("Connected to MongoDB!")
+	MongoClient.Database(dbConfig.Dbname)
 }
 
 // Insert a new database object
@@ -81,7 +82,7 @@ func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.Me
 	if err != nil {
 		log.Fatal(err)
 	}
-	return mapNodes(cursor, ctx, className, len(nodeIdList))
+	return mapNodes(cursor, ctx, className, int64(len(nodeIdList)))
 }
 
 func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
@@ -104,17 +105,26 @@ func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
 	return n
 }
 
-func FindAllByClassName(className string) []mesh.MeshNode {
+// Delivers all documents in a collection.
+// If collection not exists, false is returned.
+func FindAllByClassName(className string) ([]mesh.MeshNode, bool) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	collection := MongoClient.Database(dbConfig.Dbname).Collection(className)
+	numDocs, err := collection.CountDocuments(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	if numDocs == 0 {
+		return nil, false
+	}
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	return mapNodes(cursor, ctx, className, 100)
+	return mapNodes(cursor, ctx, className, numDocs), true
 }
 
-func mapNodes(cursor *mongo.Cursor, ctx context.Context, className string, initialLength int) []mesh.MeshNode {
+func mapNodes(cursor *mongo.Cursor, ctx context.Context, className string, initialLength int64) []mesh.MeshNode {
 	resultList := make([]mesh.MeshNode, initialLength)
 	for cursor.Next(ctx) {
 		creator := model.GetTypeConverter(className)
@@ -124,7 +134,6 @@ func mapNodes(cursor *mongo.Cursor, ctx context.Context, className string, initi
 		contentConverter := model.GetContentConverter(className)
 		content := contentConverter(contentNode.GetContent().(primitive.D).Map())
 		contentNode.SetContent(content)
-		log.Println("1")
 		if err != nil {
 			log.Fatal(err)
 		}

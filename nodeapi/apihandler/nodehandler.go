@@ -29,16 +29,18 @@ func ListNodeTypes(writer http.ResponseWriter, request *http.Request) {
 // curl localhost:8001/nodes/category
 func ListNodes(writer http.ResponseWriter, request *http.Request) {
 	requestVars := mux.Vars(request)
-	log.Println("type",requestVars[TypeName])
-	if typeName, err := requestVars[TypeName]; !err  {
+	if typeName, err := requestVars[TypeName]; !err {
 		log.Println("Could not find any type from request", typeName)
 		writeNotFound(writer)
 	} else {
-		log.Println("List all nodes from type", typeName)
-		writer.WriteHeader(http.StatusOK)
-		nodes := dbclient.FindAllByClassName(typeName)
-		if err := json.NewEncoder(writer).Encode(nodes); err != nil {
-			log.Fatal("Error while encoding respose")
+		nodes, success := dbclient.FindAllByClassName(typeName)
+		if success {
+			writer.WriteHeader(http.StatusOK)
+			if err := json.NewEncoder(writer).Encode(nodes); err != nil {
+				log.Fatal("Error while encoding respose")
+			}
+		} else {
+			writeNotFound(writer)
 		}
 	}
 }
@@ -47,10 +49,10 @@ func ListNodes(writer http.ResponseWriter, request *http.Request) {
 // curl localhost:8001/nodes/category/5cfe56a4eb825f1c8ed6e248
 func ShowNode(writer http.ResponseWriter, request *http.Request) {
 	requestVars := mux.Vars(request)
-	if typeName, err := requestVars[TypeName]; !err  {
+	if typeName, err := requestVars[TypeName]; !err {
 		log.Println("Could not find any type from request")
 		writeNotFound(writer)
-	} else if nodeid, err := requestVars[NodeID]; !err  {
+	} else if nodeid, err := requestVars[NodeID]; !err {
 		log.Println("Could not find any id from request")
 		writeNotFound(writer)
 	} else {
@@ -73,5 +75,3 @@ func writeNotFound(writer http.ResponseWriter) {
 		log.Fatal("Error while encoding respose")
 	}
 }
-
-
