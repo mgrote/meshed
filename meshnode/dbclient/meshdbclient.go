@@ -2,12 +2,10 @@ package dbclient
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 	"meshed/meshnode/configurations"
 	"meshed/meshnode/mesh"
@@ -15,29 +13,28 @@ import (
 	"time"
 )
 
-var MongoClient *mongo.Client
-var dbConfig configurations.DbConfig
-var existingCollections []string
+var MeshMongoClient *mongo.Client
+var meshDbConfig configurations.DbConfig
+const meshDbConfigFile = "/Users/michaelgrote/etc/go/mesh.db.properties.ini"
 
 func init() {
-	dbConfig = configurations.ReadConfig("/Users/michaelgrote/etc/gotest/db.properties.ini")
-	log.Println("mesh connecting to database", dbConfig.Dbname)
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	var err error
-	MongoClient, err = mongo.Connect(ctx, options.Client().ApplyURI(dbConfig.Dburl))
-	err = MongoClient.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Connected to MongoDB!")
-	MongoClient.Database(dbConfig.Dbname)
+	initMeshDatabase(meshDbConfigFile)
+}
+
+func ReinitMeshDbClientWithConfig(pathToConfigFile string) {
+	initMeshDatabase(pathToConfigFile)
+}
+
+func initMeshDatabase(pathToConfigFile string) {
+	meshDbConfig = configurations.ReadConfig(pathToConfigFile)
+	MeshMongoClient = InitDbConnection(gridDbConfig)
 }
 
 // Insert a new database object
 func Insert(doc mesh.MeshNode) {
 	log.Println("inserting", doc.GetID(), doc.GetClass(), doc.GetContent())
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := MongoClient.Database(dbConfig.Dbname).Collection(doc.GetClass())
+	collection := MeshMongoClient.Database(meshDbConfig.Dbname).Collection(doc.GetClass())
 	// increase db document version
 	version := doc.GetVersion() + 1
 	doc.SetVersion(version)
@@ -63,7 +60,7 @@ func Save(doc mesh.MeshNode) {
 		version := doc.GetVersion() + 1
 		doc.SetVersion(version)
 		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		collection := MongoClient.Database(dbConfig.Dbname).Collection(doc.GetClass())
+		collection := MeshMongoClient.Database(meshDbConfig.Dbname).Collection(doc.GetClass())
 		filter := bson.M{"_id": doc.GetID()}
 		_ , err := collection.ReplaceOne(ctx, filter, doc)
 		if err != nil {
@@ -74,7 +71,7 @@ func Save(doc mesh.MeshNode) {
 
 func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.MeshNode {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := MongoClient.Database(dbConfig.Dbname).Collection(className)
+	collection := MeshMongoClient.Database(meshDbConfig.Dbname).Collection(className)
 	findIn := bson.M{"$in" : nodeIdList}
 	filter := bson.M{"_id": findIn}
 	findOptions := options.Find()
@@ -85,10 +82,11 @@ func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.Me
 	return mapNodes(cursor, ctx, className, int64(len(nodeIdList)))
 }
 
+// Delivers a document in a collection (className) by id
 func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
 	log.Println("find", className, "by id", id.Hex())
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := MongoClient.Database(dbConfig.Dbname).Collection(className)
+	collection := MeshMongoClient.Database(meshDbConfig.Dbname).Collection(className)
 	filter := bson.M{"_id": id}
 	creator := model.GetTypeConverter(className)
 
@@ -109,7 +107,7 @@ func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
 // If collection not exists, false is returned.
 func FindAllByClassName(className string) ([]mesh.MeshNode, bool) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := MongoClient.Database(dbConfig.Dbname).Collection(className)
+	collection := MeshMongoClient.Database(meshDbConfig.Dbname).Collection(className)
 	numDocs, err := collection.CountDocuments(ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err)
@@ -141,3 +139,5 @@ func mapNodes(cursor *mongo.Cursor, ctx context.Context, className string, initi
 	}
 	return resultList
 }
+
+

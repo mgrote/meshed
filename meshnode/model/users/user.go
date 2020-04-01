@@ -51,7 +51,6 @@ func (u *User) SetPassword(pwd string) {
 }
 
 func (u *User) IsPassword(pwd string) bool {
-
 	userpw := []byte(u.Password)
 	compare := []byte(pwd)
 	err := bcrypt.CompareHashAndPassword(userpw, compare)

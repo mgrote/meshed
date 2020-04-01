@@ -9,6 +9,7 @@ import (
 type DbConfig struct {
 	Dbname string
 	Dburl string
+	Bucketname string
 }
 
 // Reads info from config file
