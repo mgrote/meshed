@@ -47,8 +47,7 @@ func TestUserPassword(t *testing.T) {
 		userNode := users.NewNode("Hüter", "Horst der")
 		user := users.GetUser(userNode)
 		user.SetPassword("onetwothree")
-		//userNode.SetContent(user)
-		userNode.Save()
+		userNode.SaveContent(user)
 		g.It("Password should be encrypted", func() {
 			g.Assert(user.Password).IsNotEqual("onetwothree")
 		})
