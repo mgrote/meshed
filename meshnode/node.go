@@ -1,7 +1,6 @@
 package meshnode
 
 import (
-	"fmt"
 	"log"
 	"meshed/meshnode/dbclient"
 	"meshed/meshnode/mesh"
@@ -223,7 +222,6 @@ func (n *node) GetVersion() uint16 {
 }
 
 func (n *node) Save() {
-	fmt.Printf("[%T] %+v\n", n, n.GetContent())
 	dbclient.Save(n)
 }
 

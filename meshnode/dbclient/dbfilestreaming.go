@@ -61,26 +61,25 @@ func UploadFile(file, filename string) {
 	log.Printf("Write file to DB was successful. File size: %d M\n", fileSize)
 }
 
-func DownloadFile(fileName string) {
+func DownloadFile(fileNameInDb string, downloadPath string) {
 	fsFiles := GridMongoClient.Database(gridDbConfig.Dbname).Collection(gridDbConfig.Bucketname + ".files")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	var results bson.M
 	err := fsFiles.FindOne(ctx, bson.M{}).Decode(&results)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("tralala-hihi", err)
 	}
 	// you can print out the result
-	fmt.Println(results)
-
+	fmt.Println("found random image to stream", results)
 
 	bucket, _ := gridfs.NewBucket(GridMongoClient.Database(gridDbConfig.Dbname), bucketOpts)
 	var buf bytes.Buffer
-	dStream, err := bucket.DownloadToStreamByName(fileName, &buf)
+	dStream, err := bucket.DownloadToStreamByName(fileNameInDb, &buf)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("File size to download: %v \n", dStream)
-	ioutil.WriteFile(fileName, buf.Bytes(), 0600)
+	ioutil.WriteFile(downloadPath, buf.Bytes(), 0600)
 }
 
 
