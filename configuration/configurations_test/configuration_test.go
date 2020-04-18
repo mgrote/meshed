@@ -2,7 +2,7 @@ package configurations_test
 
 import (
 	"github.com/franela/goblin"
-	"meshed/meshnode/configurations"
+	"meshed/configuration/configurations"
 	"testing"
 )
 

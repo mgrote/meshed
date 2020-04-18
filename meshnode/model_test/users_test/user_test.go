@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/franela/goblin"
-	"meshed/meshnode/configurations"
+	"meshed/configuration/configurations"
 	"meshed/meshnode/dbclient"
 	"meshed/meshnode/model/users"
 	"meshed/meshnode/testsupport"

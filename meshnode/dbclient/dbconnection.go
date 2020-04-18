@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
-	"meshed/meshnode/configurations"
+	"meshed/configuration/configurations"
 	"time"
 )
 

@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
 	"log"
-	"meshed/meshnode/configurations"
+	"meshed/configuration/configurations"
 	"time"
 )
 
