@@ -17,6 +17,7 @@ type Route struct {
 type Routes []Route
 
 var routes = Routes{
+
 	Route{
 		"Index",
 		"GET",
@@ -40,5 +41,11 @@ var routes = Routes{
 		"GET",
 		"/node/{" + apihandler.TypeName + "}/{" + apihandler.NodeID + "}",
 		apihandler.ShowNode,
+	},
+	Route{
+		"UploadFile",
+		"POST",
+		"/upload",
+		apihandler.UploadFileHandler,
 	},
 }
