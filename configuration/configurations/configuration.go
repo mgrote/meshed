@@ -12,6 +12,8 @@ type DbConfig struct {
 	Bucketname string
 }
 
+
+
 // Reads info from config file
 func ReadConfig(filename string) DbConfig {
 	var configfile = filename

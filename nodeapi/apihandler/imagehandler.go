@@ -14,6 +14,7 @@ import (
 const maxUploadSize = 200 * 1024 * 1024 // 200 mb
 const uploadPath = "./tmp"
 
+
 func UploadFileHandler(writer http.ResponseWriter, request *http.Request) {
 	//return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// validate file size
@@ -70,15 +71,15 @@ func UploadFileHandler(writer http.ResponseWriter, request *http.Request) {
 			renderError(writer, "CANT_WRITE_FILE", http.StatusInternalServerError)
 			return
 		}
-		renderSucces(writer, "SUCCESS")
+		renderSuccess(writer, "SUCCESS")
 	//})
 }
 
-func renderSucces(writer http.ResponseWriter, message string) {
+func renderSuccess(writer http.ResponseWriter, message string) {
 	writer.WriteHeader(http.StatusOK)
 	_, err := writer.Write([]byte(message))
 	if err != nil {
-		log.Fatal("Error while writing respose")
+		log.Fatal("Error while writing response")
 	}
 }
 
@@ -86,7 +87,7 @@ func renderError(writer http.ResponseWriter, message string, statusCode int) {
 	writer.WriteHeader(statusCode)
 	_, err := writer.Write([]byte(message))
 	if err != nil {
-		log.Fatal("Error while writing respose")
+		log.Fatal("Error while writing response")
 	}
 }
 
