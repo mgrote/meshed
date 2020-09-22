@@ -39,7 +39,7 @@ var routes = Routes{
 	Route{
 		"ShowNode",
 		"GET",
-		"/node/{" + apihandler.TypeName + "}/{" + apihandler.NodeID + "}",
+		"/node/{" + apihandler.TypeName + "}/{" + apihandler.NodeID + ":[0-9a-z]+}",
 		apihandler.ShowNode,
 	},
 	Route{

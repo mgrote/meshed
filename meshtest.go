@@ -13,7 +13,6 @@ import (
 func main() {
 
 	userNode := users.NewNode("tralala", "hihi")
-
 	user := users.GetUser(userNode)
 	user.SetPassword("einszweidrei")
 	userNode.SetContent(user)
@@ -54,6 +53,5 @@ func main() {
 
 	router := apirouting.NewRouter()
 	log.Fatal(http.ListenAndServe(":8001", router))
-
 
 }
