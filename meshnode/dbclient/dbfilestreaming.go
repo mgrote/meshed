@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -35,54 +36,61 @@ func initStreamingDatabase(pathToConfigFile string) {
 	bucketOpts = options.GridFSBucket().SetName(gridDbConfig.Bucketname)
 }
 
-func UploadFile(file, filename string) {
+func UploadFile(file, filename string) (primitive.ObjectID, error) {
 
 	data, err := ioutil.ReadFile(file)
 	fmt.Println("Got databytes", len(data), filename)
 	if err != nil {
-		log.Fatal(err)
+		return primitive.NilObjectID, err
 	}
 	bucket, err := gridfs.NewBucket(GridMongoClient.Database(gridDbConfig.Dbname), bucketOpts)
 	if err != nil {
-		log.Fatal(err)
+		return primitive.NilObjectID, err
 	}
+
 	uploadStream, err := bucket.OpenUploadStream(
 		filename,
 	)
 	if err != nil {
-		fmt.Println(err)
+		return primitive.NilObjectID, err
 	}
-	defer uploadStream.Close()
+	fileDbId := uploadStream.FileID
 
+	defer uploadStream.Close()
 	fileSize, err := uploadStream.Write(data)
 	if err != nil {
-		log.Fatal(err)
+		return primitive.NilObjectID, err
 	}
-	log.Println("Write file to DB was successful. File size:", fileSize)
+	log.Println("Write file to DB was successful. Wrote image:", fileDbId, ", File size:", fileSize)
+
+	return fileDbId.(primitive.ObjectID), nil
 }
 
-func DownloadFile(fileNameInDb string, downloadPath string) {
+func DownloadFileByName(fileNameInDb string, downloadPath string) {
+	writeToFile(bson.M{"filename":fileNameInDb}, downloadPath)
+}
+
+func DownloadFileById(id primitive.ObjectID, downloadPath string) {
+	writeToFile(bson.M{"_id":id}, downloadPath)
+}
+
+func writeToFile(filter bson.M, downloadPath string) {
 	fsFiles := GridMongoClient.Database(gridDbConfig.Dbname).Collection(gridDbConfig.Bucketname + ".files")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	var results bson.M
-	err := fsFiles.FindOne(ctx, bson.M{}).Decode(&results)
+	err := fsFiles.FindOne(ctx, filter).Decode(&results)
 	if err != nil {
-		log.Fatal("tralala-hihi", err)
+		log.Fatal("File not found in image db", err)
 	}
-	// you can print out the result
-	fmt.Println("found random image to stream", results)
-
+	log.Println("found requested image to stream", results)
 	bucket, _ := gridfs.NewBucket(GridMongoClient.Database(gridDbConfig.Dbname), bucketOpts)
 	var buf bytes.Buffer
-	dStream, err := bucket.DownloadToStream(fileNameInDb, &buf)
-	//dStream, err := bucket.DownloadToStreamByName(fileNameInDb, &buf)
+	writtenBufBytes, err := bucket.DownloadToStream(results["_id"], &buf)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("File size to download: %v \n", dStream)
+	log.Println("File size to download:", writtenBufBytes)
 	ioutil.WriteFile(downloadPath, buf.Bytes(), 0600)
-
-	// return object id, md5hash
 }
 
 

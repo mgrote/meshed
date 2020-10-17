@@ -2,8 +2,9 @@ package images_test
 
 import (
 	"context"
-	"fmt"
 	"github.com/franela/goblin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 	"meshed/configuration/configurations"
 	"meshed/meshnode/dbclient"
 	"meshed/meshnode/model/images"
@@ -26,7 +27,7 @@ const veryLargeImageFileDownload = "/Users/michaelgrote/Downloads/PIA23623_M34.t
 func prepareTestDatabase() bool {
 	dbclient.ReinitFileStreamDbClientWithConfig(gridDbConfigFile)
 	dbConfig := configurations.ReadConfig(gridDbConfigFile)
-	fmt.Println("testdatabase", dbConfig.Dbname, dbConfig.Bucketname, "will be set empty")
+	log.Println("testdatabase", dbConfig.Dbname, dbConfig.Bucketname, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(dbConfig.Bucketname + ".files").Drop(ctx)
 	dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(dbConfig.Bucketname + ".chunks").Drop(ctx)
@@ -36,9 +37,13 @@ func prepareTestDatabase() bool {
 func TestImageUpload(t *testing.T) {
 	testsupport.DoOnce(prepareTestDatabase)
 	g := goblin.Goblin(t)
-	g.Describe("Image upload", func() {
-		dbclient.UploadFile(smallImageFile , path.Base(smallImageFile))
-		dbclient.UploadFile(largeImageFile , path.Base(largeImageFile))
+	g.Describe("Image upload should return an object id and no errors", func() {
+		smallImageId, err := dbclient.UploadFile(smallImageFile , path.Base(smallImageFile))
+		g.Assert(err == nil).IsTrue()
+		g.Assert(smallImageId != primitive.NilObjectID).IsTrue()
+		largeImageId, err :=dbclient.UploadFile(largeImageFile , path.Base(largeImageFile))
+		g.Assert(err == nil).IsTrue()
+		g.Assert(largeImageId != primitive.NilObjectID).IsTrue()
 		//dbclient.UploadFile(veryLargeImageFile , path.Base(veryLargeImageFile))
 	})
 }
@@ -46,10 +51,10 @@ func TestImageUpload(t *testing.T) {
 func TestImageDownload(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Image download", func() {
-		fmt.Println("Download", path.Base(smallImageFile), "to", smallImageFileDownload)
-		dbclient.DownloadFile(path.Base(smallImageFile), smallImageFileDownload)
+		log.Println("Download", path.Base(largeImageFile), "to", largeImageFileDownload)
+		dbclient.DownloadFileByName(path.Base(largeImageFile), largeImageFileDownload)
 		g.It("Downloaded file should exist in filesystem", func() {
-			g.Assert(images.ReadableFile(smallImageFileDownload )).Equal(true)
+			g.Assert(images.ReadableFile(largeImageFileDownload )).IsTrue()
 		})
 	})
 }
