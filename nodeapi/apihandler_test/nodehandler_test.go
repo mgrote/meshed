@@ -2,6 +2,7 @@ package apihandler_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/franela/goblin"
 	"meshed/configuration/configurations"
@@ -63,11 +64,27 @@ func TestNodeTypes(t *testing.T) {
 	testsupport.DoOnce(prepareTestDatabase)
 	testsupport.DoOnce(prepareTestData)
 	g := goblin.Goblin(t)
-	g.Describe("Testing api index root", func() {
+	g.Describe("Testing api listtypes", func() {
 		req, _ := http.NewRequest("GET", "/listtypes", nil)
 		response := recordRequest(req)
 		g.It("Response code should be '200'/Http.OK", func() {
 			g.Assert(response.Code).Equal(http.StatusOK)
 		})
+		g.It("Response should contain types", func() {
+			var nodeTypes []string
+			_ = json.Unmarshal(response.Body.Bytes(), &nodeTypes)
+			g.Assert(containsString(nodeTypes, users.ClassName)).IsTrue()
+			g.Assert(containsString(nodeTypes, images.ClassName)).IsTrue()
+			g.Assert(containsString(nodeTypes, categories.ClassName)).IsTrue()
+		})
 	})
+}
+
+func containsString(a []string, e string) bool {
+	for _, a := range a {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

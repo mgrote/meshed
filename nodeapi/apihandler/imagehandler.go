@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"meshed/meshnode/dbclient"
 	"mime"
 	"net/http"
 	"os"
@@ -16,7 +17,6 @@ const uploadPath = "./tmp"
 
 
 func UploadFileHandler(writer http.ResponseWriter, request *http.Request) {
-	//return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// validate file size
 		request.Body = http.MaxBytesReader(writer, request.Body, maxUploadSize)
 		if err := request.ParseMultipartForm(maxUploadSize); err != nil {
@@ -25,7 +25,7 @@ func UploadFileHandler(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		// parse and validate file and post parameters
-		file, _, err := request.FormFile("uploadFile")
+		file, header, err := request.FormFile("uploadFile")
 		if err != nil {
 			renderError(writer, "INVALID_FILE", http.StatusBadRequest)
 			return
@@ -40,26 +40,24 @@ func UploadFileHandler(writer http.ResponseWriter, request *http.Request) {
 		// check file type, detectcontenttype only needs the first 512 bytes
 		detectedFileType := http.DetectContentType(fileBytes)
 		switch detectedFileType {
-		case "image/jpeg", "image/jpg":
-		case "image/gif", "image/png":
+		case "image/jpeg", "image/jpg", "image/gif", "image/png":
 		case "application/pdf":
 			break
 		default:
 			renderError(writer, "INVALID_FILE_TYPE", http.StatusBadRequest)
 			return
 		}
-		fileName := request.FormValue("filename")
-		if len(fileName) == 0 { // empty string, delivered if no form value 'filename'
-			fileName = randToken(12)
+		originalFilename := header.Filename
+		if len(originalFilename) == 0 { // empty string, delivered if no form value 'filename'
+			originalFilename = randToken(12)
 		}
 		fileEndings, err := mime.ExtensionsByType(detectedFileType)
 		if err != nil {
 			renderError(writer, "CANT_READ_FILE_TYPE", http.StatusInternalServerError)
 			return
 		}
-		newPath := filepath.Join(uploadPath, fileName+fileEndings[0])
-		fmt.Printf("FileType: %s, File: %s\n", detectedFileType, newPath)
-
+		newPath := filepath.Join(os.TempDir(), originalFilename+fileEndings[0])
+		log.Println("File type", detectedFileType, ", file", newPath)
 		// write file
 		newFile, err := os.Create(newPath)
 		if err != nil {
@@ -71,8 +69,8 @@ func UploadFileHandler(writer http.ResponseWriter, request *http.Request) {
 			renderError(writer, "CANT_WRITE_FILE", http.StatusInternalServerError)
 			return
 		}
+		dbclient.UploadFile(newPath, originalFilename)
 		renderSuccess(writer, "SUCCESS")
-	//})
 }
 
 func renderSuccess(writer http.ResponseWriter, message string) {

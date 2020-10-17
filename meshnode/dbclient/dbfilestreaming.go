@@ -58,7 +58,7 @@ func UploadFile(file, filename string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Write file to DB was successful. File size: %d M\n", fileSize)
+	log.Println("Write file to DB was successful. File size:", fileSize)
 }
 
 func DownloadFile(fileNameInDb string, downloadPath string) {
@@ -74,12 +74,15 @@ func DownloadFile(fileNameInDb string, downloadPath string) {
 
 	bucket, _ := gridfs.NewBucket(GridMongoClient.Database(gridDbConfig.Dbname), bucketOpts)
 	var buf bytes.Buffer
-	dStream, err := bucket.DownloadToStreamByName(fileNameInDb, &buf)
+	dStream, err := bucket.DownloadToStream(fileNameInDb, &buf)
+	//dStream, err := bucket.DownloadToStreamByName(fileNameInDb, &buf)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("File size to download: %v \n", dStream)
 	ioutil.WriteFile(downloadPath, buf.Bytes(), 0600)
+
+	// return object id, md5hash
 }
 
 
