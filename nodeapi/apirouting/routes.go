@@ -48,4 +48,22 @@ var routes = Routes{
 		"/upload",
 		apihandler.UploadFileHandler,
 	},
+	Route{
+		"RegisterUser",
+		"POST",
+		"/register",
+		apihandler.RegisterUser,
+	},
+	Route{
+		"LoginUser",
+		"POST",
+		"/login",
+		apihandler.LoginUser,
+	},
+	Route{
+		"RenewUserToken",
+		"GET",
+		"/renew",
+		apihandler.RenewUserToken,
+	},
 }
