@@ -36,34 +36,34 @@ func initStreamingDatabase(pathToConfigFile string) {
 	bucketOpts = options.GridFSBucket().SetName(gridDbConfig.Bucketname)
 }
 
-func UploadFile(file, filename string) (primitive.ObjectID, error) {
+func UploadFile(file, filename string) (primitive.ObjectID, int64,  error) {
 
 	data, err := ioutil.ReadFile(file)
 	fmt.Println("Got databytes", len(data), filename)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, 0, err
 	}
 	bucket, err := gridfs.NewBucket(GridMongoClient.Database(gridDbConfig.Dbname), bucketOpts)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, 0, err
 	}
 
 	uploadStream, err := bucket.OpenUploadStream(
 		filename,
 	)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, 0, err
 	}
 	fileDbId := uploadStream.FileID
 
 	defer uploadStream.Close()
 	fileSize, err := uploadStream.Write(data)
 	if err != nil {
-		return primitive.NilObjectID, err
+		return primitive.NilObjectID, 0, err
 	}
 	log.Println("Write file to DB was successful. Wrote image:", fileDbId, ", File size:", fileSize)
 
-	return fileDbId.(primitive.ObjectID), nil
+	return fileDbId.(primitive.ObjectID), int64(fileSize), nil
 }
 
 func DownloadFileByName(fileNameInDb string, downloadPath string) {

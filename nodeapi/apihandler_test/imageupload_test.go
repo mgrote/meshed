@@ -18,11 +18,11 @@ import (
 	"time"
 )
 
-const gridDbConfigFile = "/Users/michaelgrote/etc/gotest/imagestream.db.properties.ini"
+const gridDbTestConfigFile = "/Users/michaelgrote/etc/gotest/imagestream.db.properties.ini"
 
 func prepareImageTestDatabase() bool {
-	dbclient.ReinitFileStreamDbClientWithConfig(gridDbConfigFile)
-	dbConfig := configurations.ReadConfig(gridDbConfigFile)
+	dbclient.ReinitFileStreamDbClientWithConfig(gridDbTestConfigFile)
+	dbConfig := configurations.ReadConfig(gridDbTestConfigFile)
 	fmt.Println("testdatabase", dbConfig.Dbname, dbConfig.Bucketname, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err := dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(dbConfig.Bucketname + ".files").Drop(ctx)
@@ -33,11 +33,11 @@ func prepareImageTestDatabase() bool {
 	return true
 }
 
-
 // taken from
 // https://stackoverflow.com/questions/43904974/testing-go-http-request-formfile
 func TestUploadImage(t *testing.T) {
-	testsupport.DoOnce(prepareImageTestDatabase)
+	testsupport.DoOnce("emptyimagedb", prepareImageTestDatabase)
+	testsupport.DoOnce("emptymeshdb", prepareTestDatabase)
 	//Set up a pipe to avoid buffering
 	pr, pw := io.Pipe()
 	//This writers is going to transform

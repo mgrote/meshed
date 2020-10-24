@@ -24,6 +24,8 @@ type Image struct {
 	Filename string	`json:"filename"`
 	Path     string	`json:"path"`
 	Size     int64	`json:"size"`
+	ContentType string `json:"contenttype"`
+	Data primitive.ObjectID `json:"gfsid"`
 }
 
 type GridFsDoc struct {
@@ -47,6 +49,16 @@ func NewNode(title string, filename string) mesh.MeshNode {
 	image := Image{
 		Title:    title,
 		Filename: filename,
+	}
+	return getNode(image)
+}
+
+func NewGridFSImageNode(filename string, size int64, contentType string, gfsid primitive.ObjectID) mesh.MeshNode {
+	image := Image{
+		Filename: filename,
+		Size: size,
+		ContentType: contentType,
+		Data: gfsid,
 	}
 	return getNode(image)
 }

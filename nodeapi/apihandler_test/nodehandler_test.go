@@ -3,8 +3,9 @@ package apihandler_test
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/franela/goblin"
+	"go.mongodb.org/mongo-driver/bson"
+	"log"
 	"meshed/configuration/configurations"
 	"meshed/meshnode/dbclient"
 	"meshed/meshnode/model/categories"
@@ -16,14 +17,23 @@ import (
 	"time"
 )
 
-const meshDbConfigFile = "/Users/michaelgrote/etc/gotest/mesh.db.properties.ini"
+const meshDbTestConfigFile = "/Users/michaelgrote/etc/gotest/mesh.db.properties.ini"
 
 func prepareTestDatabase() bool {
-	dbclient.ReinitMeshDbClientWithConfig(meshDbConfigFile)
-	dbConfig := configurations.ReadConfig(meshDbConfigFile)
-	fmt.Println("testdatabase", dbConfig.Dbname, users.ClassName, "will be set empty")
+	dbclient.ReinitMeshDbClientWithConfig(meshDbTestConfigFile)
+	dbConfig := configurations.ReadConfig(meshDbTestConfigFile)
+	log.Println("testdatabase", dbConfig.Dbname, users.ClassName, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(users.ClassName).Drop(ctx)
+	collectionNames, error := dbclient.GridMongoClient.Database(dbConfig.Dbname).ListCollectionNames(ctx, bson.M{})
+	if error != nil {
+		log.Println("Got db error", error)
+	}
+	log.Println("Got collection names")
+	for _, collectionName := range collectionNames {
+		log.Println("Dropping collection", collectionName)
+		dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(collectionName).Drop(ctx)
+	}
+
 	return true
 }
 
@@ -61,8 +71,8 @@ func prepareTestData() bool {
 }
 
 func TestNodeTypes(t *testing.T) {
-	testsupport.DoOnce(prepareTestDatabase)
-	testsupport.DoOnce(prepareTestData)
+	testsupport.DoOnce("emptymeshdb", prepareTestDatabase)
+	testsupport.DoOnce("storetestdata", prepareTestData)
 	g := goblin.Goblin(t)
 	g.Describe("Testing api listtypes", func() {
 		req, _ := http.NewRequest("GET", "/listtypes", nil)

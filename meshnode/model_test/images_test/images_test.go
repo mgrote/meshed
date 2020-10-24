@@ -35,14 +35,16 @@ func prepareTestDatabase() bool {
 }
 
 func TestImageUpload(t *testing.T) {
-	testsupport.DoOnce(prepareTestDatabase)
+	testsupport.DoOnce("emptymeshdb", prepareTestDatabase)
 	g := goblin.Goblin(t)
 	g.Describe("Image upload should return an object id and no errors", func() {
-		smallImageId, err := dbclient.UploadFile(smallImageFile , path.Base(smallImageFile))
+		smallImageId, size, err := dbclient.UploadFile(smallImageFile , path.Base(smallImageFile))
 		g.Assert(err == nil).IsTrue()
+		g.Assert(size > 0).IsTrue()
 		g.Assert(smallImageId != primitive.NilObjectID).IsTrue()
-		largeImageId, err :=dbclient.UploadFile(largeImageFile , path.Base(largeImageFile))
+		largeImageId, size, err :=dbclient.UploadFile(largeImageFile , path.Base(largeImageFile))
 		g.Assert(err == nil).IsTrue()
+		g.Assert(size > 0).IsTrue()
 		g.Assert(largeImageId != primitive.NilObjectID).IsTrue()
 		//dbclient.UploadFile(veryLargeImageFile , path.Base(veryLargeImageFile))
 	})

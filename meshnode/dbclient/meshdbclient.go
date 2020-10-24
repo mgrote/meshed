@@ -22,12 +22,13 @@ func init() {
 }
 
 func ReinitMeshDbClientWithConfig(pathToConfigFile string) {
+	log.Println("Reinit database with config", pathToConfigFile)
 	initMeshDatabase(pathToConfigFile)
 }
 
 func initMeshDatabase(pathToConfigFile string) {
 	meshDbConfig = configurations.ReadConfig(pathToConfigFile)
-	MeshMongoClient = InitDbConnection(gridDbConfig)
+	MeshMongoClient = InitDbConnection(meshDbConfig)
 }
 
 // Insert a new database object

@@ -13,11 +13,11 @@ import (
 	"time"
 )
 
-const meshDbConfigFile = "/Users/michaelgrote/etc/gotest/mesh.db.properties.ini"
+const meshDbTestConfigFile = "/Users/michaelgrote/etc/gotest/mesh.db.properties.ini"
 
 func prepareTestDatabase() bool {
-	dbclient.ReinitMeshDbClientWithConfig(meshDbConfigFile)
-	dbConfig := configurations.ReadConfig(meshDbConfigFile)
+	dbclient.ReinitMeshDbClientWithConfig(meshDbTestConfigFile)
+	dbConfig := configurations.ReadConfig(meshDbTestConfigFile)
 	fmt.Println("testdatabase", dbConfig.Dbname, users.ClassName, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(users.ClassName).Drop(ctx)
@@ -25,7 +25,7 @@ func prepareTestDatabase() bool {
 }
 
 func TestUserCreation(t *testing.T)  {
-	testsupport.DoOnce(prepareTestDatabase)
+	testsupport.DoOnce("emptymeshdb", prepareTestDatabase)
 	g := goblin.Goblin(t)
 	g.Describe("User creation", func() {
 		userNode := users.NewNode("Müller", "Heiner")
@@ -41,7 +41,7 @@ func TestUserCreation(t *testing.T)  {
 }
 
 func TestUserPassword(t *testing.T) {
-	testsupport.DoOnce(prepareTestDatabase)
+	testsupport.DoOnce("emptymeshdb", prepareTestDatabase)
 	g := goblin.Goblin(t)
 	g.Describe("User password", func() {
 		userNode := users.NewNode("Hüter", "Horst der")
