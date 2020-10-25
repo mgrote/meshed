@@ -2,6 +2,7 @@ package dbclient
 
 import (
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,6 +17,8 @@ import (
 var MeshMongoClient *mongo.Client
 var meshDbConfig configurations.DbConfig
 const meshDbConfigFile = "/Users/michaelgrote/etc/go/mesh.db.properties.ini"
+
+const ErrorDocumentNotFound = "docnotfound"
 
 func init() {
 	initMeshDatabase(meshDbConfigFile)
@@ -84,24 +87,34 @@ func FindFromIDList(className string, nodeIdList []primitive.ObjectID) []mesh.Me
 }
 
 // Delivers a document in a collection (className) by id
-func FindById(className string, id primitive.ObjectID) mesh.MeshNode {
+func FindById(className string, id primitive.ObjectID) (mesh.MeshNode, error) {
 	log.Println("find", className, "by id", id.Hex())
+	return findOne(className, bson.M{"_id": id})
+}
+
+func FindOneByProperty(className string, property string, value string) (mesh.MeshNode, error) {
+	log.Println("find", className, "by", property, ":", value)
+	return findOne(className, bson.M{property: value})
+}
+
+func findOne(className string, filter bson.M) (mesh.MeshNode, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	collection := MeshMongoClient.Database(meshDbConfig.Dbname).Collection(className)
-	filter := bson.M{"_id": id}
-	creator := model.GetTypeConverter(className)
 
+	creator := model.GetTypeConverter(className)
 	node := creator()
+
 	err := collection.FindOne(ctx, filter).Decode(*node)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(filter, "not found in database")
+		return nil, errors.New(ErrorDocumentNotFound)
 	}
 	var n mesh.MeshNode
 	n = *node
 	contentConverter := model.GetContentConverter(className)
 	content := contentConverter(n.GetContent().(primitive.D).Map())
 	n.SetContent(content)
-	return n
+	return n, nil
 }
 
 // Delivers all documents in a collection.

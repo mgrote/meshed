@@ -1,8 +1,10 @@
 package categories
 
 import (
+	"github.com/mgrote/meshed/meshnode/model/categories"
 	"log"
 	"meshed/meshnode"
+	"meshed/meshnode/dbclient"
 	"meshed/meshnode/mesh"
 	"meshed/meshnode/model"
 )
@@ -46,5 +48,20 @@ func GetCategory(m mesh.MeshNode) Category {
 func GetFromMap(docmap map[string]interface{}) interface{} {
 	return Category {
 		Name: 		docmap["name"].(string),
+	}
+}
+
+func FindCategoryByName(name string) (mesh.MeshNode, bool) {
+	category , err := dbclient.FindOneByProperty(ClassName, "name", name)
+	if err != nil && err.Error() == dbclient.ErrorDocumentNotFound {
+		return nil, false
+	}
+	return category, true
+}
+
+func CreateCategoryIfNotExists(name string) {
+	_, err := dbclient.FindOneByProperty(ClassName, "name", name)
+	if err != nil && err.Error() == dbclient.ErrorDocumentNotFound {
+		categories.NewNode(name)
 	}
 }

@@ -11,7 +11,7 @@ import (
 	"reflect"
 )
 
-const TypeName = "typename"
+const NodeTypeName = "typename"
 const NodeID = "nodeid"
 
 // List existing Entriypoints (existing node types)
@@ -29,7 +29,7 @@ func ListNodeTypes(writer http.ResponseWriter, request *http.Request) {
 // curl localhost:8001/nodes/category
 func ListNodes(writer http.ResponseWriter, request *http.Request) {
 	requestVars := mux.Vars(request)
-	if typeName, err := requestVars[TypeName]; !err {
+	if typeName, err := requestVars[NodeTypeName]; !err {
 		log.Println("Could not find any type from request", typeName)
 		writeNotFound(writer)
 	} else {
@@ -49,7 +49,7 @@ func ListNodes(writer http.ResponseWriter, request *http.Request) {
 // curl localhost:8001/nodes/category/5cfe56a4eb825f1c8ed6e248
 func ShowNode(writer http.ResponseWriter, request *http.Request) {
 	requestVars := mux.Vars(request)
-	if typeName, err := requestVars[TypeName]; !err {
+	if typeName, err := requestVars[NodeTypeName]; !err {
 		log.Println("Could not find any type from request")
 		writeNotFound(writer)
 	} else if nodeid, err := requestVars[NodeID]; !err {
@@ -61,7 +61,7 @@ func ShowNode(writer http.ResponseWriter, request *http.Request) {
 		if err != nil {
 			log.Fatal("Could not get ObjectID from", nodeid)
 		}
-		node := dbclient.FindById(typeName, id)
+		node, _ := dbclient.FindById(typeName, id)
 		log.Println("got node", node.GetContent(), reflect.TypeOf(node.GetContent()), reflect.TypeOf(node))
 		if err := json.NewEncoder(writer).Encode(node); err != nil {
 			log.Fatal("Error while encoding respose")

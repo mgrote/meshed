@@ -5,7 +5,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 type NodeType interface {
 	GetClass() 		string
 	AcceptTypes() 	[]string
-	IsAccepted(string) bool
+	IsAccepting(string) bool
 }
 
 type MeshNode interface {

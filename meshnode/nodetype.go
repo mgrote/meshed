@@ -21,7 +21,7 @@ func (t NodeType) AcceptTypes() []string {
 	return t.acceptTypes
 }
 
-func (t NodeType) IsAccepted(className string) bool {
+func (t NodeType) IsAccepting(className string) bool {
 	if len(t.acceptTypes) == 0 {
 		return true
 	}

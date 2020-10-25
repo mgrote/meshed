@@ -1,6 +1,8 @@
 package apihandler_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/franela/goblin"
 	"net/http"
 	"testing"
@@ -9,7 +11,13 @@ import (
 func TestRegisterUser(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Testing api user registeration", func() {
-		req, _ := http.NewRequest("POST", "/register", nil)
+		registrationBody := map[string]interface{}{
+			"user": "Heiner Müller",
+			"pwd": "tralala-hihi",
+			"email": "test@test.frup.de",
+		}
+		body, _ := json.Marshal(registrationBody)
+		req, _ := http.NewRequest("POST", "/register", bytes.NewReader(body))
 		response := recordRequest(req)
 		g.It("Response code should be '200'/Http.OK", func() {
 			g.Assert(response.Code).Equal(http.StatusOK)
@@ -20,7 +28,12 @@ func TestRegisterUser(t *testing.T) {
 func TestLoginUser(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Testing api user login", func() {
-		req, _ := http.NewRequest("POST", "/login", nil)
+		loginBody := map[string]interface{}{
+			"user": "Heiner Müller",
+			"pwd": "tralala-hihi",
+		}
+		body, _ := json.Marshal(loginBody)
+		req, _ := http.NewRequest("POST", "/login", bytes.NewReader(body))
 		response := recordRequest(req)
 		g.It("Response code should be '200'/Http.OK", func() {
 			g.Assert(response.Code).Equal(http.StatusOK)

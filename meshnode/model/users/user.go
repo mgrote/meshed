@@ -4,6 +4,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"meshed/meshnode"
+	"meshed/meshnode/dbclient"
 	"meshed/meshnode/mesh"
 	"meshed/meshnode/model"
 )
@@ -17,6 +18,8 @@ func UserNodeType() mesh.NodeType {
 type User struct {
 	Name		string	`json:"name"`
 	Forename	string	`json:"forename"`
+	Email 		string  `json:"email"`
+	LoginName	string	`json:"login"`
 	Password	string	`json:"password"`
 }
 
@@ -36,6 +39,17 @@ func NewNode(name string, forename string) mesh.MeshNode {
 		Name: name,
 		Forename: forename,
 	}
+	node := meshnode.NewNodeWithContent(UserNodeType(), user)
+	node.Save()
+	return node
+}
+
+func NewNodeFromRegistration(login string, email string, password string) mesh.MeshNode {
+	user := User{
+		LoginName: login,
+		Email: email,
+	}
+	user.SetPassword(password)
 	node := meshnode.NewNodeWithContent(UserNodeType(), user)
 	node.Save()
 	return node
@@ -75,6 +89,14 @@ func GetFromMap(docmap map[string]interface{}) interface{} {
 		Forename: docmap["forename"].(string),
 		Password: docmap["password"].(string),
 	}
+}
+
+func FindUserByLogin(login string) (mesh.MeshNode, bool) {
+	category , err := dbclient.FindOneByProperty(ClassName, "login", login)
+	if err != nil && err.Error() == dbclient.ErrorDocumentNotFound {
+		return nil, false
+	}
+	return category, true
 }
 
 

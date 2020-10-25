@@ -71,7 +71,7 @@ func (n *node) SetID(ident interface{}) {
 }
 
 func (n *node) AddChild(cn mesh.MeshNode) {
-	if n.nodeType.IsAccepted(cn.GetClass()) {
+	if n.nodeType.IsAccepting(cn.GetClass()) {
 		log.Println("add child", cn.GetID(), "to", n.GetID())
 		if _, ok := n.Children[cn.GetClass()]; !ok {
 			n.Children[cn.GetClass()] = make([]mesh.MeshNode, 0)
@@ -120,7 +120,7 @@ func (n *node) GetChildren(className string) []mesh.MeshNode {
 }
 
 func (n *node) AddParent(pn mesh.MeshNode) {
-	if n.nodeType.IsAccepted(pn.GetClass()) {
+	if n.nodeType.IsAccepting(pn.GetClass()) {
 		log.Println("add parent", pn.GetID(),"to", n.GetID())
 		if _, ok := n.Children[pn.GetClass()]; !ok {
 			n.Parents[pn.GetClass()] = make([]mesh.MeshNode, 0)

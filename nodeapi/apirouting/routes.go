@@ -33,13 +33,13 @@ var routes = Routes{
 	Route{
 		"ListNodes",
 		"GET",
-		"/nodes/{" + apihandler.TypeName + "}",
+		"/nodes/{" + apihandler.NodeTypeName + "}",
 		apihandler.ListNodes,
 	},
 	Route{
 		"ShowNode",
 		"GET",
-		"/node/{" + apihandler.TypeName + "}/{" + apihandler.NodeID + ":[0-9a-z]+}",
+		"/node/{" + apihandler.NodeTypeName + "}/{" + apihandler.NodeID + ":[0-9a-z]+}",
 		apihandler.ShowNode,
 	},
 	Route{

@@ -48,7 +48,7 @@ func main() {
 		}
 	}
 
-	loaded := dbclient.FindById(categories.ClassName, catOneNode.GetID())
+	loaded, _ := dbclient.FindById(categories.ClassName, catOneNode.GetID())
 	log.Println("got", loaded)
 
 	router := apirouting.NewRouter()
