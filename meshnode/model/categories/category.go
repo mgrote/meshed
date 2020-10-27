@@ -1,7 +1,6 @@
 package categories
 
 import (
-	"github.com/mgrote/meshed/meshnode/model/categories"
 	"log"
 	"meshed/meshnode"
 	"meshed/meshnode/dbclient"
@@ -62,6 +61,6 @@ func FindCategoryByName(name string) (mesh.MeshNode, bool) {
 func CreateCategoryIfNotExists(name string) {
 	_, err := dbclient.FindOneByProperty(ClassName, "name", name)
 	if err != nil && err.Error() == dbclient.ErrorDocumentNotFound {
-		categories.NewNode(name)
+		NewNode(name)
 	}
 }

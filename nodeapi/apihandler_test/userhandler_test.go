@@ -12,7 +12,7 @@ func TestRegisterUser(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Testing api user registeration", func() {
 		registrationBody := map[string]interface{}{
-			"user": "Heiner Müller",
+			"login": "Heiner Müller",
 			"pwd": "tralala-hihi",
 			"email": "test@test.frup.de",
 		}

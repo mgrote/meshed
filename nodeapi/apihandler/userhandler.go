@@ -30,6 +30,7 @@ func init() {
 func RegisterUser(writer http.ResponseWriter, request *http.Request) {
 	log.Println("Register user called")
 	requestVars := mux.Vars(request)
+	log.Println("requestvars", requestVars)
 	if userLogin, err := requestVars[UserLogin]; !err {
 		log.Println("Could not find any user name from request")
 		writeWrongUserRegistration(writer)
