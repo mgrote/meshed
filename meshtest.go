@@ -12,33 +12,29 @@ import (
 
 func main() {
 
-	userNode := users.NewNode("tralala", "hihi")
-	user := users.GetUser(userNode)
-	user.SetPassword("einszweidrei")
-	userNode.SetContent(user)
-	userNode.Save()
+	firstUserNode := users.NewNode("User", "One")
+	firstUser := users.GetUser(firstUserNode)
+	firstUser.SetPassword("einszweidrei")
+	firstUserNode.SetContent(firstUser)
+	firstUserNode.Save()
 
-	secondNode := users.NewNode("soso", "nanana")
-	secondUser := users.GetUser(secondNode)
+	secondUserNode := users.NewNode("Other", "User")
+	secondUser := users.GetUser(secondUserNode)
 	secondUser.SetPassword("dreivier")
-	secondNode.SetContent(secondUser)
-	secondNode.Save()
+	secondUserNode.SetContent(secondUser)
+	secondUserNode.Save()
 
-	//userNode.AddChild(secondNode)
-//	secondNode.AddParent(userNode)
-//	userNode.RemoveChild(secondNode)
-
-	userImage := images.NewNode("user", "/Users/michaelgrote/Pictures/tusche/IMG_0294.jpeg")
+	firstUserImage := images.NewNode("user", "/Users/michaelgrote/Pictures/tusche/IMG_0294.jpeg")
 	secondUserImage := images.NewNode("seconduser", "/Users/michaelgrote/Pictures/tusche/IMG_0311.jpeg")
 
-	userNode.AddChild(userImage)
-	secondNode.AddChild(secondUserImage)
+	firstUserNode.AddChild(firstUserImage)
+	secondUserNode.AddChild(secondUserImage)
 
 	catOneNode := categories.NewNode("catone")
 	catTwoNode := categories.NewNode("cattwo")
 
-	catOneNode.AddChild(userImage)
-	catTwoNode.AddChild(userImage)
+	catOneNode.AddChild(firstUserImage)
+	catTwoNode.AddChild(firstUserImage)
 	catTwoNode.AddChild(secondUserImage)
 
 	for _, imageNode := range catTwoNode.GetChildren("image") {
@@ -53,5 +49,6 @@ func main() {
 
 	router := apirouting.NewRouter()
 	log.Fatal(http.ListenAndServe(":8001", router))
+	// access api or close
 
 }
