@@ -21,12 +21,12 @@ Es entsteht ein Netzwerk an Informationen
 - Knoten können nach Regeln miteinander verknüpft werden
 - Knoten enthalten Metainformationen über die Informationen selbst (History), die Erzeugung dieser Metadaten erfolgt vom Entwicker unabhängig
 
-###Vorteile
+### Vorteile
 - konkrete Implementationen von Programmen auf der Basis des Meshs unterscheiden sich nur über die enthaltenen Typen und deren Regeln, die Art und Weise der Verknüpfung erfolgt immer gleich
 - unabhangig von der verwendeten Datenbank (was in dem vorliegenden Prototypen leider noch nicht vollständig gelungen ist)
 - jeder einzelne implementierte Typ bestimmt selbst die Regeln, mit denen er mit anderen Typen vernetzt werden kann
 
-###Was leistet der Prototyp
+### Was leistet der Prototyp
 
 - Mesh und Nodes als Informationsträger sind beispielhaft implementiert
 - beispielhaft wurden Informationen mit den Typen User, Image, Category implementiert
@@ -37,7 +37,7 @@ Es entsteht ein Netzwerk an Informationen
 - Verwendung von MongoDB als Persistenzschicht
 - Verwendung von Mongo GridFS zur Ablage von Images
 
-###Nachvollziehen der Funktionsweise
+### Nachvollziehen der Funktionsweise
 
 - zu jedem Typ und zur API wurden Tests implementiert
 
