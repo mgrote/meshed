@@ -46,9 +46,10 @@ Zusätzliche Regeln, die einem Knoten mitgegeben werden können, verhindern fehl
 
 ### Nachvollziehen der Funktionsweise
 
-- zu jedem Typ und zur API wurden Tests implementiert 
-- inifilepath.ini.sample zu inifilepath.ini umbenennen und den Pfad zu den lokalen ini-Dateien eintragen
-- db.property.ini.sample zu db.property.ini umbenennen, eine gültige Url zu einer MongoDB eintragen und im festgelegtem Pfad bereitstellen
+- zu jedem Typ und zur API wurden Tests implementiert
+- mesh.db.property.ini.sample zu mesh.db.property.ini umbenennen, eine gültige Url zu einer MongoDB eintragen und im festgelegtem Pfad bereitstellen
 - imagestream.db.property.ini.sample zu imagestream.db.property.ini umbenennen, eine gültige Url zu einer MongoDB eintragen und im festgelegtem Pfad bereitstellen
+- Anwendung oder Tests mit dem Parameter '-inifiles "/path/to/propertyfiles"' starten
+- Achtung, die Tests löschen vor dem Start Daten aus der Datenbank, eine separate Testdatenbank ist sinnvoll
 
 Translate to english -> tbd.
