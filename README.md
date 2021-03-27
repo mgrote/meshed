@@ -32,7 +32,7 @@ Zusätzliche Regeln, die einem Knoten mitgegeben werden können, verhindern fehl
 - Knoten können Regeln über ihre möglichen Verknüpfungen enthalten, fehlerhafte Implementationen eines Mesh können bei 
   längerer Entwicklungszeit und wechselnden Teams vermieden werden
 
-### Was leistet der Prototyp
+### Was leistet der Prototype
 
 - Mesh und Nodes als Informationsträger sind beispielhaft implementiert
 - beispielhaft wurden Informationen mit den Typen User, Image, Category implementiert
