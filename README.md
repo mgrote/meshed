@@ -7,7 +7,7 @@
 Program first.
 
 Meshed ermöglicht es, Datenmodelle während der Entwicklung on the fly zu implementieren und ständig zu reorganisieren.
-Die Entwicklung von Fachlichkeit bleibt frei von den Kompromissen, die bei klassischer Vorgehensweise mit einem einmal 
+Die Entwicklung von Fachlichkeit bleibt frei von Kompromissen, die bei klassischer Vorgehensweise mit einem einmal 
 festgelegtem Datenmodel die Weiterentwicklung oft einengen.
 
 ### Idee
@@ -25,8 +25,8 @@ Zusätzliche Regeln, die einem Knoten mitgegeben werden können, verhindern fehl
 - konkrete Implementationen von Programmen auf der Basis von Meshed unterscheiden sich nur über die enthaltenen Typen 
   und deren Regeln, die Art und Weise der Verknüpfung erfolgt immer gleich
 - unabhängig von der verwendeten Datenbank (was in dem vorliegenden Prototypen leider noch nicht vollständig gelungen ist)
-- die Informationen selbst sind typisiert und können ohne Kenntnis des Mesh selbst verarbeitet werden 
-- Knoten und ihre Informationen sind nach Typ persistiert und können schnell ohne Zugriff auf das Mesh selbst abgerufen 
+- die Informationen selbst sind typisiert und können ohne Kenntnis des Mesh verarbeitet werden 
+- Knoten und ihre Informationen sind nach Typ persistiert und können schnell ohne Zugriff auf das Mesh direkt abgerufen 
   werden
 - Knoten enthalten Metainformationen über die Informationen selbst (History), die unabhängig vom Entwickler erzeugt werden
 - Knoten können Regeln über ihre möglichen Verknüpfungen enthalten, fehlerhafte Implementationen eines Mesh können bei 
@@ -37,9 +37,9 @@ Zusätzliche Regeln, die einem Knoten mitgegeben werden können, verhindern fehl
 - Mesh und Nodes als Informationsträger sind beispielhaft implementiert
 - beispielhaft wurden Informationen mit den Typen User, Image, Category implementiert
 - Images können Usern zugeordnet werden, Images und User können mit Hilfe des Typs Category kategorisiert werden
-- beispielhaftes Ändern der Informationen selbst über z.B. User, deren Name oder Passwort geändert wird
-- beispielhaftes Veröffentlichen von Informationen über die im Mesh enthaltenen Typen und Abruf derer über eine API
-- beispielhaftes Registrieren von Usern 
+- beispielhaftes Ändern der Informationen selbst, z.B. User, deren Name oder Passwort geändert wird
+- beispielhaftes Veröffentlichen von Informationen über die im Mesh enthaltenen Typen und Abruf derer über eine Web-API
+- beispielhaftes Registrieren von Usern über eine Web-API
 - beispielhaftes Erzeugen von sehr einfachen Metainformationen (History) eines Knoten
 - Verwendung von MongoDB als Persistenzschicht
 - Verwendung von Mongo GridFS zur Ablage von Images
