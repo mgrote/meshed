@@ -47,5 +47,6 @@ Zusätzliche Regeln, die einem Knoten mitgegeben werden können, verhindern fehl
 ### Nachvollziehen der Funktionsweise
 
 - zu jedem Typ und zur API wurden Tests implementiert
+- db.property.ini.sample zu db.property.ini umbenennen und eine gültige Url zu einer MongoDB eintragen
 
 Translate to english -> tbd.
