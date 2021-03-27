@@ -17,16 +17,16 @@ import (
 	"time"
 )
 
-const meshDbTestConfigFile = "/Users/michaelgrote/etc/gotest/mesh.db.properties.ini"
+const meshDbTestConfigFile = "mesh.db.properties.ini"
 
 func prepareTestDatabase() bool {
 	dbclient.ReinitMeshDbClientWithConfig(meshDbTestConfigFile)
-	dbConfig := configurations.ReadConfig(meshDbTestConfigFile)
+	dbConfig := configurations.ReadDbConfig(meshDbTestConfigFile)
 	log.Println("testdatabase", dbConfig.Dbname, users.ClassName, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collectionNames, error := dbclient.GridMongoClient.Database(dbConfig.Dbname).ListCollectionNames(ctx, bson.M{})
-	if error != nil {
-		log.Println("Got db error", error)
+	collectionNames, err := dbclient.GridMongoClient.Database(dbConfig.Dbname).ListCollectionNames(ctx, bson.M{})
+	if err != nil {
+		log.Println("Got db error", err)
 	}
 	log.Println("Got collection names")
 	for _, collectionName := range collectionNames {

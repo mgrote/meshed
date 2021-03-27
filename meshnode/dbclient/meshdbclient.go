@@ -24,13 +24,13 @@ func init() {
 	initMeshDatabase(meshDbConfigFile)
 }
 
-func ReinitMeshDbClientWithConfig(pathToConfigFile string) {
-	log.Println("Reinit database with config", pathToConfigFile)
-	initMeshDatabase(pathToConfigFile)
+func ReinitMeshDbClientWithConfig(configFileName string) {
+	log.Println("Reinit database with config", configFileName)
+	initMeshDatabase(configFileName)
 }
 
-func initMeshDatabase(pathToConfigFile string) {
-	meshDbConfig = configurations.ReadConfig(pathToConfigFile)
+func initMeshDatabase(configFileName string) {
+	meshDbConfig = configurations.ReadDbConfig(configFileName)
 	MeshMongoClient = InitDbConnection(meshDbConfig)
 }
 

@@ -8,16 +8,22 @@ import (
 	"meshed/meshnode/dbclient"
 	"meshed/meshnode/model/users"
 	"meshed/meshnode/testsupport"
+	"os"
 	"reflect"
 	"testing"
 	"time"
 )
 
-const meshDbTestConfigFile = "/Users/michaelgrote/etc/gotest/mesh.db.properties.ini"
+const meshDbTestConfigFile = "mesh.db.properties.ini"
+
+func TestMain(m *testing.M) {
+	testsupport.ReadFlags()
+	os.Exit(m.Run())
+}
 
 func prepareTestDatabase() bool {
 	dbclient.ReinitMeshDbClientWithConfig(meshDbTestConfigFile)
-	dbConfig := configurations.ReadConfig(meshDbTestConfigFile)
+	dbConfig := configurations.ReadDbConfig(meshDbTestConfigFile)
 	fmt.Println("testdatabase", dbConfig.Dbname, users.ClassName, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(users.ClassName).Drop(ctx)

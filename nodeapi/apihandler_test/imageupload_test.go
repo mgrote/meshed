@@ -18,11 +18,16 @@ import (
 	"time"
 )
 
-const gridDbTestConfigFile = "/Users/michaelgrote/etc/gotest/imagestream.db.properties.ini"
+const gridDbTestConfigFile = "imagestream.db.properties.ini"
+
+func TestMain(m *testing.M) {
+	testsupport.ReadFlags()
+	os.Exit(m.Run())
+}
 
 func prepareImageTestDatabase() bool {
 	dbclient.ReinitFileStreamDbClientWithConfig(gridDbTestConfigFile)
-	dbConfig := configurations.ReadConfig(gridDbTestConfigFile)
+	dbConfig := configurations.ReadDbConfig(gridDbTestConfigFile)
 	fmt.Println("testdatabase", dbConfig.Dbname, dbConfig.Bucketname, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err := dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(dbConfig.Bucketname + ".files").Drop(ctx)

@@ -4,6 +4,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 type DbConfig struct {
@@ -12,20 +13,23 @@ type DbConfig struct {
 	Bucketname string
 }
 
+var IniFilePath string
 
+// Reads db configuration from config file
+func ReadDbConfig(filename string) DbConfig {
+	return decodeDbConfig(IniFilePath, filename)
+}
 
-// Reads info from config file
-func ReadConfig(filename string) DbConfig {
-	var configfile = filename
-	_, err := os.Stat(configfile)
+func decodeDbConfig(path string, filename string) DbConfig {
+	inifile := filepath.Join(path, filename)
+	_, err := os.Stat(inifile)
 	if err != nil {
-		log.Fatal("Config file is missing: ", configfile)
+		log.Fatal("Config file is missing: ", inifile)
 	}
 
 	var config DbConfig
-	if _, err := toml.DecodeFile(configfile, &config); err != nil {
+	if _, err := toml.DecodeFile(inifile, &config); err != nil {
 		log.Fatal(err)
 	}
-	//log.Print(config.Index)
 	return config
 }

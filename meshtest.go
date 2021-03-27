@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"log"
+	"meshed/configuration/configurations"
 	"meshed/meshnode/dbclient"
 	"meshed/meshnode/model/categories"
 	"meshed/meshnode/model/images"
@@ -11,7 +13,13 @@ import (
 )
 
 func main() {
+	// read database location
+	var pathFlag string
+	flag.StringVar(&pathFlag, "inifiles", ".", "Path to ini files")
+	flag.Parse()
+	configurations.IniFilePath = pathFlag
 
+	// create some node with content
 	firstUserNode := users.NewNode("User", "One")
 	firstUser := users.GetUser(firstUserNode)
 	firstUser.SetPassword("einszweidrei")

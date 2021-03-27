@@ -1,7 +1,19 @@
 package testsupport
 
+import (
+	"flag"
+	"meshed/configuration/configurations"
+)
+
 type DoOnceFunction func() bool
 var executedKeys = make([]string, 0)
+
+func ReadFlags() {
+	var pathFlag string
+	flag.StringVar(&pathFlag, "inifiles", ".", "Path to ini files")
+	flag.Parse()
+	configurations.IniFilePath = pathFlag
+}
 
 func DoOnce(key string, doOnceUntilReset DoOnceFunction) bool {
 	var success = true

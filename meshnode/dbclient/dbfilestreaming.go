@@ -20,18 +20,18 @@ import (
 var GridMongoClient *mongo.Client
 var gridDbConfig configurations.DbConfig
 var bucketOpts *options.BucketOptions
-const gridDbConfigFile = "/Users/michaelgrote/etc/go/imagestream.db.properties.ini"
+const gridDbConfigFile = "imagestream.db.properties.ini"
 
 func init() {
 	initStreamingDatabase(gridDbConfigFile)
 }
 
-func ReinitFileStreamDbClientWithConfig(pathToConfigFile string) {
-	initStreamingDatabase(pathToConfigFile)
+func ReinitFileStreamDbClientWithConfig(configFileName string) {
+	initStreamingDatabase(configFileName)
 }
 
-func initStreamingDatabase(pathToConfigFile string) {
-	gridDbConfig = configurations.ReadConfig(pathToConfigFile)
+func initStreamingDatabase(configFileName string) {
+	gridDbConfig = configurations.ReadDbConfig(configFileName)
 	GridMongoClient = InitDbConnection(gridDbConfig)
 	bucketOpts = options.GridFSBucket().SetName(gridDbConfig.Bucketname)
 }

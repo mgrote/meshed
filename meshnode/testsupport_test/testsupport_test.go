@@ -23,8 +23,6 @@ func failingMethod() bool {
 	return false
 }
 
-
-
 func TestDoOnceFirstMethodCall(t *testing.T)  {
 	g := goblin.Goblin(t)
 	g.Describe("Test First call to DoOnce", func() {

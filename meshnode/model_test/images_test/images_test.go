@@ -9,12 +9,13 @@ import (
 	"meshed/meshnode/dbclient"
 	"meshed/meshnode/model/images"
 	"meshed/meshnode/testsupport"
+	"os"
 	"path"
 	"testing"
 	"time"
 )
 
-const gridDbConfigFile = "/Users/michaelgrote/etc/gotest/imagestream.db.properties.ini"
+const gridDbConfigFile = "imagestream.db.properties.ini"
 
 const smallImageFile = "/Users/michaelgrote/etc/gotest/particlestorm-16.jpg"
 const largeImageFile = "/Users/michaelgrote/etc/gotest/PIA23623.jpg"
@@ -24,9 +25,14 @@ const smallImageFileDownload = "/Users/michaelgrote/Downloads/particlestorm-16.j
 const largeImageFileDownload = "/Users/michaelgrote/Downloads/PIA23623.jpg"
 const veryLargeImageFileDownload = "/Users/michaelgrote/Downloads/PIA23623_M34.tif"
 
+func TestMain(m *testing.M) {
+	testsupport.ReadFlags()
+	os.Exit(m.Run())
+}
+
 func prepareTestDatabase() bool {
 	dbclient.ReinitFileStreamDbClientWithConfig(gridDbConfigFile)
-	dbConfig := configurations.ReadConfig(gridDbConfigFile)
+	dbConfig := configurations.ReadDbConfig(gridDbConfigFile)
 	log.Println("testdatabase", dbConfig.Dbname, dbConfig.Bucketname, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(dbConfig.Bucketname + ".files").Drop(ctx)
