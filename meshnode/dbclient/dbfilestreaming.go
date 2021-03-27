@@ -15,28 +15,17 @@ import (
 	"time"
 )
 
-
-
 var GridMongoClient *mongo.Client
 var gridDbConfig configurations.DbConfig
 var bucketOpts *options.BucketOptions
-const gridDbConfigFile = "imagestream.db.properties.ini"
 
-func init() {
-	initStreamingDatabase(gridDbConfigFile)
-}
-
-func ReinitFileStreamDbClientWithConfig(configFileName string) {
-	initStreamingDatabase(configFileName)
-}
-
-func initStreamingDatabase(configFileName string) {
+func InitFileStreamDbClientWithConfig(configFileName string) {
 	gridDbConfig = configurations.ReadDbConfig(configFileName)
 	GridMongoClient = InitDbConnection(gridDbConfig)
 	bucketOpts = options.GridFSBucket().SetName(gridDbConfig.Bucketname)
 }
 
-func UploadFile(file, filename string) (primitive.ObjectID, int64,  error) {
+func UploadFile(file, filename string) (primitive.ObjectID, int64, error) {
 
 	data, err := ioutil.ReadFile(file)
 	fmt.Println("Got databytes", len(data), filename)
@@ -67,11 +56,11 @@ func UploadFile(file, filename string) (primitive.ObjectID, int64,  error) {
 }
 
 func DownloadFileByName(fileNameInDb string, downloadPath string) {
-	writeToFile(bson.M{"filename":fileNameInDb}, downloadPath)
+	writeToFile(bson.M{"filename": fileNameInDb}, downloadPath)
 }
 
 func DownloadFileById(id primitive.ObjectID, downloadPath string) {
-	writeToFile(bson.M{"_id":id}, downloadPath)
+	writeToFile(bson.M{"_id": id}, downloadPath)
 }
 
 func writeToFile(filter bson.M, downloadPath string) {
@@ -92,5 +81,3 @@ func writeToFile(filter bson.M, downloadPath string) {
 	log.Println("File size to download:", writtenBufBytes)
 	ioutil.WriteFile(downloadPath, buf.Bytes(), 0600)
 }
-
-

@@ -18,6 +18,8 @@ func main() {
 	flag.StringVar(&pathFlag, "inifiles", ".", "Path to ini files")
 	flag.Parse()
 	configurations.IniFilePath = pathFlag
+	// init persistence
+	dbclient.InitDatabase()
 
 	// create some node with content
 	firstUserNode := users.NewNode("User", "One")

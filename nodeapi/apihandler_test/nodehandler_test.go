@@ -20,7 +20,7 @@ import (
 const meshDbTestConfigFile = "mesh.db.properties.ini"
 
 func prepareTestDatabase() bool {
-	dbclient.ReinitMeshDbClientWithConfig(meshDbTestConfigFile)
+	dbclient.InitMeshDbClientWithConfig(meshDbTestConfigFile)
 	dbConfig := configurations.ReadDbConfig(meshDbTestConfigFile)
 	log.Println("testdatabase", dbConfig.Dbname, users.ClassName, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)

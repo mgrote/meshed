@@ -23,8 +23,9 @@ func ReadDbConfig(filename string) DbConfig {
 func decodeDbConfig(path string, filename string) DbConfig {
 	inifile := filepath.Join(path, filename)
 	_, err := os.Stat(inifile)
+	log.Println("Configuration: checking existence", inifile)
 	if err != nil {
-		log.Fatal("Config file is missing: ", inifile)
+		log.Fatal("Configuration: config file is missing: ", inifile)
 	}
 
 	var config DbConfig

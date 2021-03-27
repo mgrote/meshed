@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 }
 
 func prepareTestDatabase() bool {
-	dbclient.ReinitFileStreamDbClientWithConfig(gridDbConfigFile)
+	dbclient.InitFileStreamDbClientWithConfig(gridDbConfigFile)
 	dbConfig := configurations.ReadDbConfig(gridDbConfigFile)
 	log.Println("testdatabase", dbConfig.Dbname, dbConfig.Bucketname, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)

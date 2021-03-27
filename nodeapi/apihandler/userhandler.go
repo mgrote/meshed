@@ -21,13 +21,10 @@ type registrationSuccess struct {
 	success bool
 }
 
-// look if essential categories are present
-func init() {
-	categories.CreateCategoryIfNotExists(CategoryUserUnregistrated)
-}
-
 // Register an user and send out registration link
 func RegisterUser(writer http.ResponseWriter, request *http.Request) {
+	// look for essential categories, create if not present
+	categories.CreateCategoryIfNotExists(CategoryUserUnregistrated)
 	log.Println("Register user called")
 	requestVars := mux.Vars(request)
 	log.Println("requestvars", requestVars)

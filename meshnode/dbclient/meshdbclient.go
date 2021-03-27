@@ -16,20 +16,10 @@ import (
 
 var MeshMongoClient *mongo.Client
 var meshDbConfig configurations.DbConfig
-const meshDbConfigFile = "/Users/michaelgrote/etc/go/mesh.db.properties.ini"
 
 const ErrorDocumentNotFound = "docnotfound"
 
-func init() {
-	initMeshDatabase(meshDbConfigFile)
-}
-
-func ReinitMeshDbClientWithConfig(configFileName string) {
-	log.Println("Reinit database with config", configFileName)
-	initMeshDatabase(configFileName)
-}
-
-func initMeshDatabase(configFileName string) {
+func InitMeshDbClientWithConfig(configFileName string) {
 	meshDbConfig = configurations.ReadDbConfig(configFileName)
 	MeshMongoClient = InitDbConnection(meshDbConfig)
 }

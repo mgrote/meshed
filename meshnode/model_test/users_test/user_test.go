@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/franela/goblin"
+	"log"
 	"meshed/configuration/configurations"
 	"meshed/meshnode/dbclient"
 	"meshed/meshnode/model/users"
@@ -17,21 +18,22 @@ import (
 const meshDbTestConfigFile = "mesh.db.properties.ini"
 
 func TestMain(m *testing.M) {
+	log.Println("testmain")
 	testsupport.ReadFlags()
+	testsupport.DoOnce("emptymeshdb", prepareTestDatabase)
 	os.Exit(m.Run())
 }
 
 func prepareTestDatabase() bool {
-	dbclient.ReinitMeshDbClientWithConfig(meshDbTestConfigFile)
+	dbclient.InitMeshDbClientWithConfig(meshDbTestConfigFile)
 	dbConfig := configurations.ReadDbConfig(meshDbTestConfigFile)
 	fmt.Println("testdatabase", dbConfig.Dbname, users.ClassName, "will be set empty")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	dbclient.GridMongoClient.Database(dbConfig.Dbname).Collection(users.ClassName).Drop(ctx)
+	dbclient.MeshMongoClient.Database(dbConfig.Dbname).Collection(users.ClassName).Drop(ctx)
 	return true
 }
 
 func TestUserCreation(t *testing.T)  {
-	testsupport.DoOnce("emptymeshdb", prepareTestDatabase)
 	g := goblin.Goblin(t)
 	g.Describe("User creation", func() {
 		userNode := users.NewNode("Müller", "Heiner")

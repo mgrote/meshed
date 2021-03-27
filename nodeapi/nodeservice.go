@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"meshed/configuration/configurations"
+	"meshed/meshnode/dbclient"
 	"net/http"
 
 	"meshed/nodeapi/apirouting"
@@ -15,6 +16,8 @@ func main() {
 	flag.StringVar(&pathFlag, "inifiles", ".", "Path to ini files")
 	flag.Parse()
 	configurations.IniFilePath = pathFlag
+
+	dbclient.InitDatabase()
 
 	router := apirouting.NewRouter()
 	log.Fatal(http.ListenAndServe(":8001", router))

@@ -2,6 +2,7 @@ package testsupport
 
 import (
 	"flag"
+	"log"
 	"meshed/configuration/configurations"
 )
 
@@ -9,9 +10,11 @@ type DoOnceFunction func() bool
 var executedKeys = make([]string, 0)
 
 func ReadFlags() {
+	log.Println("Testsupport: checking flags")
 	var pathFlag string
 	flag.StringVar(&pathFlag, "inifiles", ".", "Path to ini files")
 	flag.Parse()
+	log.Println("Path to ini files", pathFlag)
 	configurations.IniFilePath = pathFlag
 }
 
