@@ -1,0 +1,3 @@
+dbname="imagedb"
+dburl="mongodb://user:password@host:port"
+bucketname="images"

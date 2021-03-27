@@ -46,7 +46,9 @@ Zusätzliche Regeln, die einem Knoten mitgegeben werden können, verhindern fehl
 
 ### Nachvollziehen der Funktionsweise
 
-- zu jedem Typ und zur API wurden Tests implementiert
-- db.property.ini.sample zu db.property.ini umbenennen und eine gültige Url zu einer MongoDB eintragen
+- zu jedem Typ und zur API wurden Tests implementiert 
+- inifilepath.ini.sample zu inifilepath.ini umbenennen und den Pfad zu den lokalen ini-Dateien eintragen
+- db.property.ini.sample zu db.property.ini umbenennen, eine gültige Url zu einer MongoDB eintragen und im festgelegtem Pfad bereitstellen
+- imagestream.db.property.ini.sample zu imagestream.db.property.ini umbenennen, eine gültige Url zu einer MongoDB eintragen und im festgelegtem Pfad bereitstellen
 
 Translate to english -> tbd.

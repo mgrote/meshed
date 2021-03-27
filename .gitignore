@@ -1,5 +1,5 @@
 *.iml
 **/.idea
-db.properties.ini
+**.ini
 
 
