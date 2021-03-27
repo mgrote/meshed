@@ -4,36 +4,43 @@
 
 ### Motivation
 
-Sehr oft habe ich während meiner Tätigkeit Systeme gesehen, deren Entwickler zuerst über die Ablage der Daten und erst danach über die eigentlichen Probleme nachgedacht haben. Während der Lebenszeit dieser Systeme sind oft die ursprünglichen Ideen verloren gegangen und die Datenhaltung entwickelte sich immer mehr zum Hemmnis.
-Diesen Zustand habe ich immer als sehr unbefriedigend empfunden.
+Program first.
 
-Mit diesem "Mesh of Informations" gehe ich der Idee nach, mit einem toteinfachen Datenmodell beliebige Infomationen miteinander zu verknüpfen und ständig rekonfigurierbar zu halten.
+Meshed ermöglicht es, Datenmodelle während der Entwicklung on the fly zu implementieren und ständig zu reorganisieren.
+Die Entwicklung von Fachlichkeit bleibt frei von den Kompromissen, die bei klassischer Vorgehensweise mit einem einmal 
+festgelegtem Datenmodel die Weiterentwicklung oft einengen.
 
 ### Idee
 
-Die Grundidee ist es, ein Mesh bereitzustellen, in dem Informationen geregelt miteinander vernetzt und damit in fachliche Zusammenhänge gebracht werden können. 
+Meshed organisiert Knoten in Baum- bzw. Netzstrukturen. Informationen sind diesen Knoten zugeordnet. 
 
-Die Art und Weise der Verknüfung ist zur Lauf- und Lebenszeit des Systems einfach rekonfigurierbar, ohne das die Informationen selbst angepasst werden müssen.
+Knoten können jederzeit verschoben oder umgehangen werden, ohne das sich die Struktur untergeordnet verbundener Knoten ändert.
 
-Es entsteht ein Netzwerk an Informationen
-- alle Informationen sind an Knoten gebunden
-- von Knoten gehaltene Informationen sind typisiert
-- Knoten können nach Regeln miteinander verknüpft werden
-- Knoten enthalten Metainformationen über die Informationen selbst (History), die Erzeugung dieser Metadaten erfolgt vom Entwicker unabhängig
+Zusätzliche Knoten können mit bestehenden Strukturen verbunden werden und so neue fachliche Zusammenhänge abbilden.
+
+Zusätzliche Regeln, die einem Knoten mitgegeben werden können, verhindern fehlerhafte Vernetzungen.
 
 ### Vorteile
-- konkrete Implementationen von Programmen auf der Basis des Meshs unterscheiden sich nur über die enthaltenen Typen und deren Regeln, die Art und Weise der Verknüpfung erfolgt immer gleich
-- unabhangig von der verwendeten Datenbank (was in dem vorliegenden Prototypen leider noch nicht vollständig gelungen ist)
-- jeder einzelne implementierte Typ bestimmt selbst die Regeln, mit denen er mit anderen Typen vernetzt werden kann
+
+- konkrete Implementationen von Programmen auf der Basis von Meshed unterscheiden sich nur über die enthaltenen Typen 
+  und deren Regeln, die Art und Weise der Verknüpfung erfolgt immer gleich
+- unabhängig von der verwendeten Datenbank (was in dem vorliegenden Prototypen leider noch nicht vollständig gelungen ist)
+- die Informationen selbst sind typisiert und können ohne Kenntnis des Mesh selbst verarbeitet werden 
+- Knoten und ihre Informationen sind nach Typ persistiert und können schnell ohne Zugriff auf das Mesh selbst abgerufen 
+  werden
+- Knoten enthalten Metainformationen über die Informationen selbst (History), die unabhängig vom Entwickler erzeugt werden
+- Knoten können Regeln über ihre möglichen Verknüpfungen enthalten, fehlerhafte Implementationen eines Mesh können bei 
+  längerer Entwicklungszeit und wechselnden Teams vermieden werden
 
 ### Was leistet der Prototyp
 
 - Mesh und Nodes als Informationsträger sind beispielhaft implementiert
 - beispielhaft wurden Informationen mit den Typen User, Image, Category implementiert
-- Bilder können Usern zugeordnet werden, Bilder und User können mit Hilfe des Typs Category kategorisiert werden
-- beispielhaftes Ändern der Informationen selbst über z.B. User, deren Passwort geändert wird
+- Images können Usern zugeordnet werden, Images und User können mit Hilfe des Typs Category kategorisiert werden
+- beispielhaftes Ändern der Informationen selbst über z.B. User, deren Name oder Passwort geändert wird
 - beispielhaftes Veröffentlichen von Informationen über die im Mesh enthaltenen Typen und Abruf derer über eine API
-- beispielhaftes Registrieren von Usern
+- beispielhaftes Registrieren von Usern 
+- beispielhaftes Erzeugen von sehr einfachen Metainformationen (History) eines Knoten
 - Verwendung von MongoDB als Persistenzschicht
 - Verwendung von Mongo GridFS zur Ablage von Images
 
