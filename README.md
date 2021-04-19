@@ -20,7 +20,20 @@ Zusätzliche Knoten können mit bestehenden Strukturen verbunden werden und so n
 
 Zusätzliche Regeln, die einem Knoten mitgegeben werden können, verhindern fehlerhafte Vernetzungen.
 
-### Vorteile
+![nodes](./doc/images/nodes.png)
+
+#### Warum, das kann ich doch auch mit relationalen Ansätzen problemlos darstellen?
+
+Die Verbindungen von Knoten können als die Kanten eines Graphen interpretiert werden, die in Abhängigkeit von der Häufigkeit ihrer 
+Benutzung mit Gewichten versehen werden. Diese Gewichte ermöglichen es, Knoten immer weiter in die Richtung ihrer
+Aufrufer zu bewegen, ohne daß das auf den Knoten liegende Programm verändert würde. Das System würde sich in gewisser Weise
+selbst optimieren. Die Konkrete Struktur der Daten bzw. der Knoten muss solches Verhalten natürlich unterstützen.
+
+![nodes](./doc/images/weights.png)
+
+Dieses Verhalten auszuprobieren, war die eigentliche Motivation meshed vorzuschlagen und zu entwickeln.
+
+### Vorteile von Meshed
 
 - konkrete Implementationen von Programmen auf der Basis von Meshed unterscheiden sich nur über die enthaltenen Typen 
   und deren Regeln, die Art und Weise der Verknüpfung erfolgt immer gleich
