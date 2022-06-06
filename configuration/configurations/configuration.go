@@ -15,7 +15,7 @@ type DbConfig struct {
 
 var IniFilePath string
 
-// Reads db configuration from config file
+// ReadDbConfig reads db configuration from config file
 func ReadDbConfig(filename string) DbConfig {
 	return decodeDbConfig(IniFilePath, filename)
 }
