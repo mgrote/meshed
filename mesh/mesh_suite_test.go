@@ -1,4 +1,4 @@
-package configurations_test
+package mesh_test
 
 import (
 	"testing"
@@ -9,5 +9,5 @@ import (
 
 func TestConfigurations(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Configurations Suite")
+	RunSpecs(t, "Mesh Test Suite")
 }

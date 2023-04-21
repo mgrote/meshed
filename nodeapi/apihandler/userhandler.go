@@ -6,7 +6,6 @@ import (
 	"github.com/mgrote/meshed/commonmodels/categories"
 	"github.com/mgrote/meshed/commonmodels/users"
 	"github.com/mgrote/meshed/mesh"
-	"github.com/mgrote/meshed/mesh/mongodb"
 	"log"
 	"net/http"
 )
@@ -117,16 +116,24 @@ func writeUserNotAuthorized(writer http.ResponseWriter) {
 }
 
 func FindCategoryByName(name string) (mesh.Node, bool) {
-	category, err := mesh.Service.FindNodeByProperty(categories.ClassName, "name", name)
-	if err != nil && err.Error() == mongodb.ErrorDocumentNotFound {
+	category, err := mesh.Service.FindNodeByProperty(categories.TypeName, "name", name)
+	if err != nil && err.Error() == mesh.ErrorDocumentNotFound {
 		return nil, false
 	}
 	return category, true
 }
 
 func CreateCategoryIfNotExists(name string) {
-	_, err := mesh.Service.FindNodeByProperty(categories.ClassName, "name", name)
-	if err != nil && err.Error() == mongodb.ErrorDocumentNotFound {
+	_, err := mesh.Service.FindNodeByProperty(categories.TypeName, "name", name)
+	if err != nil && err.Error() == mesh.ErrorDocumentNotFound {
 		categories.NewNode(name)
 	}
+}
+
+func FindUserByLogin(login string) (mesh.Node, bool) {
+	category, err := mesh.Service.FindNodeByProperty(users.TypeName, "login", login)
+	if err != nil && err.Error() == mesh.ErrorDocumentNotFound {
+		return nil, false
+	}
+	return category, true
 }

@@ -7,21 +7,21 @@ import (
 var typeRegistry = make(map[string]func() *Node)
 var contentRegistry = make(map[string]func(map[string]interface{}) interface{})
 
-func RegisterTypeConverter(className string, creator func() *Node) {
-	log.Println("registering", className)
-	typeRegistry[className] = creator
+func RegisterTypeConverter(typeName string, creator func() *Node) {
+	log.Println("registering", typeName)
+	typeRegistry[typeName] = creator
 }
 
-func RegisterContentConverter(className string, contentConverter func(map[string]interface{}) interface{}) {
-	contentRegistry[className] = contentConverter
+func RegisterContentConverter(typeName string, contentConverter func(map[string]interface{}) interface{}) {
+	contentRegistry[typeName] = contentConverter
 }
 
-func GetTypeConverter(className string) func() *Node {
-	return typeRegistry[className]
+func GetTypeConverter(typeName string) func() *Node {
+	return typeRegistry[typeName]
 }
 
-func GetContentConverter(className string) func(map[string]interface{}) interface{} {
-	return contentRegistry[className]
+func GetContentConverter(typeName string) func(map[string]interface{}) interface{} {
+	return contentRegistry[typeName]
 }
 
 func GetTypes() []string {

@@ -2,15 +2,14 @@ package users
 
 import (
 	"github.com/mgrote/meshed/mesh"
-	"github.com/mgrote/meshed/mesh/mongodb"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 )
 
-const ClassName = "user"
+const TypeName = "user"
 
 func UserNodeType() mesh.NodeType {
-	return mesh.NewNodeType([]string{"image", "category"}, ClassName)
+	return mesh.NewNodeType([]string{"image", "category"}, TypeName)
 }
 
 type User struct {
@@ -29,7 +28,7 @@ func init() {
 			node := mesh.NewNodeWithContent(UserNodeType(), User{})
 			return &node
 		})
-	mesh.RegisterContentConverter(ClassName, GetFromMap)
+	mesh.RegisterContentConverter(TypeName, GetFromMap)
 }
 
 func NewNode(name string, forename string) mesh.Node {
@@ -87,12 +86,4 @@ func GetFromMap(docmap map[string]interface{}) interface{} {
 		Forename: docmap["forename"].(string),
 		Password: docmap["password"].(string),
 	}
-}
-
-func FindUserByLogin(login string) (mesh.Node, bool) {
-	category, err := mongodb.FindOneByProperty(ClassName, "login", login)
-	if err != nil && err.Error() == mongodb.ErrorDocumentNotFound {
-		return nil, false
-	}
-	return category, true
 }

@@ -6,10 +6,10 @@ import (
 	"log"
 )
 
-const ClassName = "category"
+const TypeName = "category"
 
 func CategoryNodeType() mesh.NodeType {
-	return mesh.NewNodeType([]string{}, ClassName)
+	return mesh.NewNodeType([]string{}, TypeName)
 }
 
 type Category struct {
@@ -18,11 +18,11 @@ type Category struct {
 
 func init() {
 	log.Println("category init called")
-	mesh.RegisterTypeConverter(ClassName, func() *mesh.Node {
+	mesh.RegisterTypeConverter(TypeName, func() *mesh.Node {
 		node := mesh.NewNodeWithContent(CategoryNodeType(), Category{})
 		return &node
 	})
-	mesh.RegisterContentConverter(ClassName, GetFromMap)
+	mesh.RegisterContentConverter(TypeName, GetFromMap)
 }
 
 func NewNode(name string) mesh.Node {

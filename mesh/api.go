@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/mgrote/meshed/configurations"
+	"github.com/BurntSushi/toml"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,21 +22,28 @@ const (
 	ErrorDocumentNotFound = "documentNotFound"
 )
 
+type DbConfig struct {
+	MeshDbName     string
+	BlobDbName     string
+	BlobBucketName string
+	DbURL          string
+}
+
 type NodeService interface {
 	Insert(doc Node) error
 	Save(doc Node) error
-	FindNodeById(className string, id primitive.ObjectID) (Node, error)
-	FindNodesFromIDList(className string, nodeIdList []primitive.ObjectID) []Node
-	FindNodesByClassName(className string) ([]Node, bool)
-	FindNodeByProperty(className string, property string, value string) (Node, error)
+	FindNodeById(typeName string, id primitive.ObjectID) (Node, error)
+	FindNodesFromIDList(typeName string, nodeIdList []primitive.ObjectID) []Node
+	FindNodesByTypeName(typeName string) ([]Node, bool)
+	FindNodeByProperty(typeName string, property string, value string) (Node, error)
 	StoreBlob(file, filename string) (ID primitive.ObjectID, fileSize int64, retErr error)
 	RetrieveBlobByName(fileNameInDb string, downloadPath string) error
 }
 
 var Service NodeService
 
-func InitApiWithConfig(configFileName string) error {
-	config, err := configurations.ReadDbConfig(configFileName)
+func InitApiWithConfig(configFilePath string) error {
+	config, err := decodeDbConfig(configFilePath)
 	if err != nil {
 		return fmt.Errorf("node service read config: %w", err)
 	}
@@ -51,7 +58,7 @@ func InitApi() error {
 	return InitApiWithConfig(DefaultConfigPath)
 }
 
-func NewNodeServiceMongoDB(config *configurations.DbConfig) (NodeService, error) {
+func NewNodeServiceMongoDB(config *DbConfig) (NodeService, error) {
 	service, err := initMongoDbConnection(config)
 	if err != nil {
 		return nil, fmt.Errorf("node service connect to database: %w", err)
@@ -66,7 +73,7 @@ type NodeServiceMongoDB struct {
 	blobBucketOpts *options.BucketOptions
 }
 
-func initMongoDbConnection(dbConfig *configurations.DbConfig) (*NodeServiceMongoDB, error) {
+func initMongoDbConnection(dbConfig *DbConfig) (*NodeServiceMongoDB, error) {
 	mongoServerAPI := options.ServerAPI(options.ServerAPIVersion1).
 		SetStrict(true).
 		SetDeprecationErrors(true)
@@ -101,21 +108,21 @@ func initMongoDbConnection(dbConfig *configurations.DbConfig) (*NodeServiceMongo
 }
 
 func (n *NodeServiceMongoDB) Insert(doc Node) error {
-	log.Println("inserting", doc.GetID(), doc.GetClass(), doc.GetContent())
+	log.Println("inserting", doc.GetID(), doc.GetTypeName(), doc.GetContent())
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := n.meshDbClient.Database(n.meshDbName).Collection(doc.GetClass())
+	collection := n.meshDbClient.Database(n.meshDbName).Collection(doc.GetTypeName())
 	// increase db document version
 	version := doc.GetVersion() + 1
 	doc.SetVersion(version)
 	result, err := collection.InsertOne(ctx, doc)
 	if err != nil {
-		return fmt.Errorf("could not insert document %v into database %w", doc.GetClass(), err)
+		return fmt.Errorf("could not insert document %v into database %w", doc.GetTypeName(), err)
 	}
 	// set db id to reference if not exists
 	doc.SetID(result.InsertedID.(primitive.ObjectID))
-	log.Println("saved", doc.GetID(), doc.GetVersion(), doc.GetClass())
+	log.Println("saved", doc.GetID(), doc.GetVersion(), doc.GetTypeName())
 	return nil
 }
 
@@ -123,28 +130,28 @@ func (n *NodeServiceMongoDB) Save(doc Node) error {
 	if doc.GetID() == primitive.NilObjectID {
 		return n.Insert(doc)
 	}
-	log.Println("updating", doc.GetID(), doc.GetClass(), doc.GetContent())
+	log.Println("updating", doc.GetID(), doc.GetTypeName(), doc.GetContent())
 	// increase db document version
 	version := doc.GetVersion() + 1
 	doc.SetVersion(version)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := n.meshDbClient.Database(n.meshDbName).Collection(doc.GetClass())
+	collection := n.meshDbClient.Database(n.meshDbName).Collection(doc.GetTypeName())
 	filter := bson.M{"_id": doc.GetID()}
 	_, err := collection.ReplaceOne(ctx, filter, doc)
 	return err
 }
 
-func (n *NodeServiceMongoDB) FindNodeById(className string, ID primitive.ObjectID) (Node, error) {
-	return findOne(className, bson.M{"_id": ID}, n.meshDbClient, n.meshDbName)
+func (n *NodeServiceMongoDB) FindNodeById(typeName string, ID primitive.ObjectID) (Node, error) {
+	return findOne(typeName, bson.M{"_id": ID}, n.meshDbClient, n.meshDbName)
 }
 
-func (n *NodeServiceMongoDB) FindNodesFromIDList(className string, nodeIdList []primitive.ObjectID) []Node {
+func (n *NodeServiceMongoDB) FindNodesFromIDList(typeName string, nodeIdList []primitive.ObjectID) []Node {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := n.meshDbClient.Database(n.meshDbName).Collection(className)
+	collection := n.meshDbClient.Database(n.meshDbName).Collection(typeName)
 	findIn := bson.M{"$in": nodeIdList}
 	filter := bson.M{"_id": findIn}
 	findOptions := options.Find()
@@ -152,14 +159,14 @@ func (n *NodeServiceMongoDB) FindNodesFromIDList(className string, nodeIdList []
 	if err != nil {
 		log.Fatal(err)
 	}
-	return mapNodes(cursor, ctx, className, int64(len(nodeIdList)))
+	return mapNodes(cursor, ctx, typeName, int64(len(nodeIdList)))
 }
 
-func (n *NodeServiceMongoDB) FindNodesByClassName(className string) ([]Node, bool) {
+func (n *NodeServiceMongoDB) FindNodesByTypeName(typeName string) ([]Node, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := n.meshDbClient.Database(n.meshDbName).Collection(className)
+	collection := n.meshDbClient.Database(n.meshDbName).Collection(typeName)
 	numDocs, err := collection.CountDocuments(ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err)
@@ -171,11 +178,11 @@ func (n *NodeServiceMongoDB) FindNodesByClassName(className string) ([]Node, boo
 	if err != nil {
 		log.Fatal(err)
 	}
-	return mapNodes(cursor, ctx, className, numDocs), true
+	return mapNodes(cursor, ctx, typeName, numDocs), true
 }
 
-func (n *NodeServiceMongoDB) FindNodeByProperty(className string, property string, value string) (Node, error) {
-	return findOne(className, bson.M{property: value}, n.meshDbClient, n.meshDbName)
+func (n *NodeServiceMongoDB) FindNodeByProperty(typeName string, property string, value string) (Node, error) {
+	return findOne(typeName, bson.M{property: value}, n.meshDbClient, n.meshDbName)
 }
 
 func (n *NodeServiceMongoDB) StoreBlob(file, filename string) (ID primitive.ObjectID, fileSize int64, retErr error) {
@@ -236,13 +243,13 @@ func (n *NodeServiceMongoDB) RetrieveBlobByName(fileNameInDb string, downloadPat
 	return os.WriteFile(downloadPath, buf.Bytes(), 0600)
 }
 
-func findOne(className string, filter bson.M, client *mongo.Client, dbName string) (Node, error) {
+func findOne(typeName string, filter bson.M, client *mongo.Client, dbName string) (Node, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	collection := client.Database(dbName).Collection(className)
+	collection := client.Database(dbName).Collection(typeName)
 
-	creator := GetTypeConverter(className)
+	creator := GetTypeConverter(typeName)
 	node := creator()
 
 	err := collection.FindOne(ctx, filter).Decode(*node)
@@ -251,20 +258,20 @@ func findOne(className string, filter bson.M, client *mongo.Client, dbName strin
 	}
 	var n Node
 	n = *node
-	contentConverter := GetContentConverter(className)
+	contentConverter := GetContentConverter(typeName)
 	content := contentConverter(n.GetContent().(primitive.D).Map())
 	n.SetContent(content)
 	return n, nil
 }
 
-func mapNodes(cursor *mongo.Cursor, ctx context.Context, className string, initialLength int64) []Node {
+func mapNodes(cursor *mongo.Cursor, ctx context.Context, typeName string, initialLength int64) []Node {
 	resultList := make([]Node, initialLength)
 	for cursor.Next(ctx) {
-		creator := GetTypeConverter(className)
+		creator := GetTypeConverter(typeName)
 		node := creator()
 		err := cursor.Decode(*node)
 		contentNode := *node
-		contentConverter := GetContentConverter(className)
+		contentConverter := GetContentConverter(typeName)
 		content := contentConverter(contentNode.GetContent().(primitive.D).Map())
 		contentNode.SetContent(content)
 		if err != nil {
@@ -273,4 +280,17 @@ func mapNodes(cursor *mongo.Cursor, ctx context.Context, className string, initi
 		resultList = append(resultList, contentNode)
 	}
 	return resultList
+}
+
+func decodeDbConfig(configFilePath string) (*DbConfig, error) {
+	_, err := os.Stat(configFilePath)
+	if err != nil {
+		return nil, fmt.Errorf("configuration file %s is missing: %w", configFilePath, err)
+	}
+
+	config := &DbConfig{}
+	if _, err := toml.DecodeFile(configFilePath, config); err != nil {
+		return nil, fmt.Errorf("could not decode database config: %w", err)
+	}
+	return config, nil
 }

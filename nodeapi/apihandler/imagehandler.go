@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/mgrote/meshed/commonmodels/blobs"
-	"github.com/mgrote/meshed/mesh/mongodb"
+	"github.com/mgrote/meshed/mesh"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io/ioutil"
 	"log"
@@ -71,7 +71,7 @@ func UploadFileHandler(writer http.ResponseWriter, request *http.Request) {
 		renderError(writer, "CANT_WRITE_FILE", http.StatusInternalServerError)
 		return
 	}
-	imageDbId, size, err := mongodb.UploadFile(newPath, originalFilename)
+	imageDbId, size, err := mesh.Service.StoreBlob(newPath, originalFilename)
 	if err != nil || imageDbId == primitive.NilObjectID {
 		renderError(writer, "CANT_STORE_FILE", http.StatusInternalServerError)
 		return

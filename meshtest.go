@@ -2,14 +2,15 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/mgrote/meshed/commonmodels/blobs"
 	"github.com/mgrote/meshed/commonmodels/categories"
 	"github.com/mgrote/meshed/commonmodels/users"
-	"github.com/mgrote/meshed/configurations"
-	"github.com/mgrote/meshed/mesh/mongodb"
+	"github.com/mgrote/meshed/mesh"
 	"github.com/mgrote/meshed/nodeapi/apirouting"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -17,9 +18,11 @@ func main() {
 	var pathFlag string
 	flag.StringVar(&pathFlag, "inifiles", ".", "Path to ini files")
 	flag.Parse()
-	configurations.IniFilePath = pathFlag
-	// init persistence
-	mongodb.InitDatabase()
+
+	if err := mesh.InitApiWithConfig(pathFlag); err != nil {
+		fmt.Println("init mesh api:", err)
+		os.Exit(1)
+	}
 
 	// create some node with content
 	firstUserNode := users.NewNode("User", "One")
@@ -54,7 +57,7 @@ func main() {
 		}
 	}
 
-	loaded, _ := mongodb.FindById(categories.ClassName, catOneNode.GetID())
+	loaded, _ := mesh.Service.FindNodeById(categories.TypeName, catOneNode.GetID())
 	log.Println("got", loaded)
 
 	router := apirouting.NewRouter()

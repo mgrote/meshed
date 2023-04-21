@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-const ClassName = "blob"
+const TypeName = "blob"
 
 func BlobNodeType() mesh.NodeType {
-	return mesh.NewNodeType([]string{categories.ClassName, users.ClassName}, ClassName)
+	return mesh.NewNodeType([]string{categories.TypeName, users.TypeName}, TypeName)
 }
 
 type Blob struct {
@@ -36,11 +36,11 @@ type GridFsDoc struct {
 
 func init() {
 	log.Println("blob init called")
-	mesh.RegisterTypeConverter(ClassName, func() *mesh.Node {
+	mesh.RegisterTypeConverter(TypeName, func() *mesh.Node {
 		node := mesh.NewNodeWithContent(BlobNodeType(), Blob{})
 		return &node
 	})
-	mesh.RegisterContentConverter(ClassName, GetFromMap)
+	mesh.RegisterContentConverter(TypeName, GetFromMap)
 }
 
 func NewNode(title string, filename string) mesh.Node {
