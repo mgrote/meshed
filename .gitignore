@@ -1,0 +1,6 @@
+*.iml
+**/.idea
+**.properties.ini
+
+# env files with secrets
+*.env
