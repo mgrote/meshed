@@ -1,15 +1,14 @@
 package categories
 
 import (
+	"github.com/mgrote/meshed/commonmodels"
 	"github.com/mgrote/meshed/mesh"
 	//"github.com/mgrote/meshed/mesh/dbclient"
 	"log"
 )
 
-const TypeName = "category"
-
 func CategoryNodeType() mesh.NodeType {
-	return mesh.NewNodeType([]string{}, TypeName)
+	return mesh.NewNodeType([]string{}, commonmodels.CategoryType)
 }
 
 type Category struct {
@@ -18,11 +17,11 @@ type Category struct {
 
 func init() {
 	log.Println("category init called")
-	mesh.RegisterTypeConverter(TypeName, func() *mesh.Node {
+	mesh.RegisterTypeConverter(commonmodels.CategoryType, func() *mesh.Node {
 		node := mesh.NewNodeWithContent(CategoryNodeType(), Category{})
 		return &node
 	})
-	mesh.RegisterContentConverter(TypeName, GetFromMap)
+	mesh.RegisterContentConverter(commonmodels.CategoryType, GetFromMap)
 }
 
 func NewNode(name string) mesh.Node {

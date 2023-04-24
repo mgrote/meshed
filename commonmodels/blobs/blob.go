@@ -1,8 +1,7 @@
 package blobs
 
 import (
-	"github.com/mgrote/meshed/commonmodels/categories"
-	"github.com/mgrote/meshed/commonmodels/users"
+	"github.com/mgrote/meshed/commonmodels"
 	"github.com/mgrote/meshed/mesh"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
@@ -10,10 +9,8 @@ import (
 	"time"
 )
 
-const TypeName = "blob"
-
 func BlobNodeType() mesh.NodeType {
-	return mesh.NewNodeType([]string{categories.TypeName, users.TypeName}, TypeName)
+	return mesh.NewNodeType([]string{commonmodels.UserType, commonmodels.CategoryType}, commonmodels.BlobType)
 }
 
 type Blob struct {
@@ -36,11 +33,11 @@ type GridFsDoc struct {
 
 func init() {
 	log.Println("blob init called")
-	mesh.RegisterTypeConverter(TypeName, func() *mesh.Node {
+	mesh.RegisterTypeConverter(commonmodels.BlobType, func() *mesh.Node {
 		node := mesh.NewNodeWithContent(BlobNodeType(), Blob{})
 		return &node
 	})
-	mesh.RegisterContentConverter(TypeName, GetFromMap)
+	mesh.RegisterContentConverter(commonmodels.BlobType, GetFromMap)
 }
 
 func NewNode(title string, filename string) mesh.Node {

@@ -71,13 +71,13 @@ func UploadFileHandler(writer http.ResponseWriter, request *http.Request) {
 		renderError(writer, "CANT_WRITE_FILE", http.StatusInternalServerError)
 		return
 	}
-	imageDbId, size, err := mesh.Service.StoreBlob(newPath, originalFilename)
-	if err != nil || imageDbId == primitive.NilObjectID {
+	blobDbId, size, err := mesh.Service.StoreBlob(newPath, originalFilename)
+	if err != nil || blobDbId == primitive.NilObjectID {
 		renderError(writer, "CANT_STORE_FILE", http.StatusInternalServerError)
 		return
 	}
 	// create image, add image to user
-	newImage := blobs.NewGridFSBlobNode(originalFilename, size, detectedFileType, imageDbId)
+	newImage := blobs.NewGridFSBlobNode(originalFilename, size, detectedFileType, blobDbId)
 	writer.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(writer).Encode(newImage); err != nil {
 		log.Fatal("Error while encoding respose")

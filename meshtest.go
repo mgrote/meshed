@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/mgrote/meshed/commonmodels"
 	"github.com/mgrote/meshed/commonmodels/blobs"
 	"github.com/mgrote/meshed/commonmodels/categories"
 	"github.com/mgrote/meshed/commonmodels/users"
@@ -19,6 +20,7 @@ func main() {
 	flag.StringVar(&pathFlag, "inifiles", ".", "Path to ini files")
 	flag.Parse()
 
+	// Init API with default config.
 	if err := mesh.InitApiWithConfig(pathFlag); err != nil {
 		fmt.Println("init mesh api:", err)
 		os.Exit(1)
@@ -29,26 +31,40 @@ func main() {
 	firstUser := users.GetUser(firstUserNode)
 	firstUser.SetPassword("einszweidrei")
 	firstUserNode.SetContent(firstUser)
-	firstUserNode.Save()
+	if err := firstUserNode.Save(); err != nil {
+		os.Exit(3)
+	}
 
 	secondUserNode := users.NewNode("Other", "User")
 	secondUser := users.GetUser(secondUserNode)
 	secondUser.SetPassword("dreivier")
 	secondUserNode.SetContent(secondUser)
-	secondUserNode.Save()
+	if err := secondUserNode.Save(); err != nil {
+		os.Exit(4)
+	}
 
 	firstUserImage := blobs.NewNode("user", "/Users/michaelgrote/Pictures/tusche/IMG_0294.jpeg")
 	secondUserImage := blobs.NewNode("seconduser", "/Users/michaelgrote/Pictures/tusche/IMG_0311.jpeg")
 
-	firstUserNode.AddChild(firstUserImage)
-	secondUserNode.AddChild(secondUserImage)
+	if err := firstUserNode.AddChild(firstUserImage); err != nil {
+		os.Exit(5)
+	}
+	if err := secondUserNode.AddChild(secondUserImage); err != nil {
+		os.Exit(6)
+	}
 
 	catOneNode := categories.NewNode("catone")
 	catTwoNode := categories.NewNode("cattwo")
 
-	catOneNode.AddChild(firstUserImage)
-	catTwoNode.AddChild(firstUserImage)
-	catTwoNode.AddChild(secondUserImage)
+	if err := catOneNode.AddChild(firstUserImage); err != nil {
+		os.Exit(7)
+	}
+	if err := catTwoNode.AddChild(firstUserImage); err != nil {
+		os.Exit(8)
+	}
+	if err := catTwoNode.AddChild(secondUserImage); err != nil {
+		os.Exit(9)
+	}
 
 	for _, imageNode := range catTwoNode.GetChildren("image") {
 		log.Println("got image node ", imageNode.GetContent())
@@ -57,7 +73,7 @@ func main() {
 		}
 	}
 
-	loaded, _ := mesh.Service.FindNodeById(categories.TypeName, catOneNode.GetID())
+	loaded, _ := mesh.Service.FindNodeById(commonmodels.CategoryType, catOneNode.GetID())
 	log.Println("got", loaded)
 
 	router := apirouting.NewRouter()

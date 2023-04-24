@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	DefaultConfigPath     = "../config/mesh.db.properties.ini"
+	DefaultConfigPath     = "./config/mesh.db.properties.ini"
 	ErrorDocumentNotFound = "documentNotFound"
 )
 

@@ -1,15 +1,14 @@
 package users
 
 import (
+	"github.com/mgrote/meshed/commonmodels"
 	"github.com/mgrote/meshed/mesh"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 )
 
-const TypeName = "user"
-
 func UserNodeType() mesh.NodeType {
-	return mesh.NewNodeType([]string{"image", "category"}, TypeName)
+	return mesh.NewNodeType([]string{commonmodels.BlobType, commonmodels.CategoryType}, commonmodels.UserType)
 }
 
 type User struct {
@@ -28,7 +27,7 @@ func init() {
 			node := mesh.NewNodeWithContent(UserNodeType(), User{})
 			return &node
 		})
-	mesh.RegisterContentConverter(TypeName, GetFromMap)
+	mesh.RegisterContentConverter(commonmodels.UserType, GetFromMap)
 }
 
 func NewNode(name string, forename string) mesh.Node {

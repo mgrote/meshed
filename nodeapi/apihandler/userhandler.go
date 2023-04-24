@@ -3,6 +3,7 @@ package apihandler
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/mgrote/meshed/commonmodels"
 	"github.com/mgrote/meshed/commonmodels/categories"
 	"github.com/mgrote/meshed/commonmodels/users"
 	"github.com/mgrote/meshed/mesh"
@@ -116,7 +117,7 @@ func writeUserNotAuthorized(writer http.ResponseWriter) {
 }
 
 func FindCategoryByName(name string) (mesh.Node, bool) {
-	category, err := mesh.Service.FindNodeByProperty(categories.TypeName, "name", name)
+	category, err := mesh.Service.FindNodeByProperty(commonmodels.CategoryType, "name", name)
 	if err != nil && err.Error() == mesh.ErrorDocumentNotFound {
 		return nil, false
 	}
@@ -124,14 +125,14 @@ func FindCategoryByName(name string) (mesh.Node, bool) {
 }
 
 func CreateCategoryIfNotExists(name string) {
-	_, err := mesh.Service.FindNodeByProperty(categories.TypeName, "name", name)
+	_, err := mesh.Service.FindNodeByProperty(commonmodels.CategoryType, "name", name)
 	if err != nil && err.Error() == mesh.ErrorDocumentNotFound {
 		categories.NewNode(name)
 	}
 }
 
 func FindUserByLogin(login string) (mesh.Node, bool) {
-	category, err := mesh.Service.FindNodeByProperty(users.TypeName, "login", login)
+	category, err := mesh.Service.FindNodeByProperty(commonmodels.UserType, "login", login)
 	if err != nil && err.Error() == mesh.ErrorDocumentNotFound {
 		return nil, false
 	}
