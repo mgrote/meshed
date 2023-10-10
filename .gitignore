@@ -1,6 +1,10 @@
+# editor and IDE paraphernalia
+.idea
 *.iml
-**/.idea
-**.properties.ini
+*.swp
+*.swo
+*~
 
 # env files with secrets
 *.env
+**.properties.ini

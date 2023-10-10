@@ -20,6 +20,7 @@ type Node interface {
 	AddChild(Node) error
 	RemoveChild(Node) error
 	GetChildren(string) []Node
+	GetChildrenIn(typeNames []string) []Node
 	AddParent(Node) error
 	RemoveParent(Node) error
 	GetParents(string) []Node
@@ -163,6 +164,15 @@ func (n *node) GetChildren(typeName string) []Node {
 		n.Children[typeName] = checkMissingReferences(n.ChShadow[typeName], n.Children[typeName], typeName)
 	}
 	return n.Children[typeName]
+}
+
+func (n *node) GetChildrenIn(typeNames []string) []Node {
+	// check if parent nodes completely loaded
+	var childrenIn []Node
+	for _, typeName := range typeNames {
+		childrenIn = append(childrenIn, n.GetChildren(typeName)...)
+	}
+	return childrenIn
 }
 
 func (n *node) AddParent(pn Node) error {
