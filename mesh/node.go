@@ -20,7 +20,7 @@ type Node interface {
 	AddChild(Node) error
 	RemoveChild(Node) error
 	GetChildren(string) []Node
-	GetChildrenIn(typeNames []string) []Node
+	GetChildrenIn(...string) []Node
 	AddParent(Node) error
 	RemoveParent(Node) error
 	GetParents(string) []Node
@@ -166,7 +166,7 @@ func (n *node) GetChildren(typeName string) []Node {
 	return n.Children[typeName]
 }
 
-func (n *node) GetChildrenIn(typeNames []string) []Node {
+func (n *node) GetChildrenIn(typeNames ...string) []Node {
 	// check if parent nodes completely loaded
 	var childrenIn []Node
 	for _, typeName := range typeNames {
