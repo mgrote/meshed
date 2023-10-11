@@ -1,7 +1,6 @@
 package apihandler_test
 
 import (
-	"github.com/mgrote/meshed/mesh/testsupport"
 	"image"
 	"image/color"
 	"image/png"
@@ -15,7 +14,6 @@ import (
 //const gridDbTestConfigFile = "imagestream.db.properties.ini"
 
 func TestMain(m *testing.M) {
-	testsupport.ReadFlags()
 	os.Exit(m.Run())
 }
 
