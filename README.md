@@ -1,3 +1,7 @@
+*current state of development: `pre-alpha`*  
+*Tests will be refactored to ginkgo, but are not yet complete. The db init before tests is broken.*
+
+
 # meshed
 
 
