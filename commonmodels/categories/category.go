@@ -3,7 +3,6 @@ package categories
 import (
 	"github.com/mgrote/meshed/commonmodels"
 	"github.com/mgrote/meshed/mesh"
-	//"github.com/mgrote/meshed/mesh/dbclient"
 	"log"
 )
 
