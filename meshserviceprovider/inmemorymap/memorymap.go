@@ -21,6 +21,9 @@ func NewNodeServiceMemoryMap() *NodeServiceMemoryMap {
 }
 
 func (n *NodeServiceMemoryMap) Insert(doc mesh.Node) error {
+	if doc.GetID().IsZero() {
+		doc.SetID(primitive.NewObjectID())
+	}
 	//TODO implement me
 	panic("implement me")
 }
