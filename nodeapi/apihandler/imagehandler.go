@@ -71,7 +71,7 @@ func UploadFileHandler(writer http.ResponseWriter, request *http.Request) {
 		renderError(writer, "CANT_WRITE_FILE", http.StatusInternalServerError)
 		return
 	}
-	blobDbId, size, err := mesh.Service.StoreBlob(newPath, originalFilename)
+	blobDbId, size, err := mesh.NodeService.StoreBlob(newPath, originalFilename)
 	if err != nil || blobDbId == primitive.NilObjectID {
 		renderError(writer, "CANT_STORE_FILE", http.StatusInternalServerError)
 		return

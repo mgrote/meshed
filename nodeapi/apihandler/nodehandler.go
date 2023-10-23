@@ -32,7 +32,7 @@ func ListNodes(writer http.ResponseWriter, request *http.Request) {
 		log.Println("Could not find any type from request", typeName)
 		writeNotFound(writer)
 	} else {
-		nodes, success := mesh.Service.FindNodesByTypeName(typeName)
+		nodes, success := mesh.NodeService.FindNodesByTypeName(typeName)
 		if success {
 			writer.WriteHeader(http.StatusOK)
 			if err := json.NewEncoder(writer).Encode(nodes); err != nil {
@@ -60,7 +60,7 @@ func ShowNode(writer http.ResponseWriter, request *http.Request) {
 		if err != nil {
 			log.Fatal("Could not get ObjectID from", nodeid)
 		}
-		node, _ := mesh.Service.FindNodeById(typeName, id)
+		node, _ := mesh.NodeService.FindNodeById(typeName, id)
 		log.Println("got node", node.GetContent(), reflect.TypeOf(node.GetContent()), reflect.TypeOf(node))
 		if err := json.NewEncoder(writer).Encode(node); err != nil {
 			log.Fatal("Error while encoding respose")

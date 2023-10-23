@@ -7,11 +7,12 @@ import (
 	"github.com/mgrote/meshed/commonmodels/blobs"
 	"github.com/mgrote/meshed/commonmodels/categories"
 	"github.com/mgrote/meshed/commonmodels/users"
-	"github.com/mgrote/meshed/mesh"
 	"github.com/mgrote/meshed/nodeapi/apirouting"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/mgrote/meshed/meshserviceprovider/mongodb"
 )
 
 func main() {
