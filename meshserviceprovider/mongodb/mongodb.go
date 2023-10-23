@@ -110,12 +110,12 @@ func (n *NodeServiceMongoDB) Insert(doc mesh.Node) error {
 	}
 	// set db id to reference if not exists
 	doc.SetID(result.InsertedID.(primitive.ObjectID))
-	log.Println("saved", doc.GetID(), doc.GetVersion(), doc.GetTypeName())
+	log.Println("inserted", doc.GetID(), doc.GetVersion(), doc.GetTypeName())
 	return nil
 }
 
 func (n *NodeServiceMongoDB) Save(doc mesh.Node) error {
-	if doc.GetID() == "" {
+	if doc.GetID() == nil {
 		return n.Insert(doc)
 	}
 	log.Println("updating", doc.GetID(), doc.GetTypeName(), doc.GetContent())
@@ -131,13 +131,13 @@ func (n *NodeServiceMongoDB) Save(doc mesh.Node) error {
 	return err
 }
 
-func (n *NodeServiceMongoDB) FindNodeById(typeName string, ID string) (mesh.Node, error) {
+func (n *NodeServiceMongoDB) FindNodeByID(typeName string, ID interface{}) (mesh.Node, error) {
 	// TODO convert ID to primitive.ObjectID
 
 	return findOne(typeName, bson.M{"_id": ID}, n.meshDbClient, n.meshDbName)
 }
 
-func (n *NodeServiceMongoDB) FindNodesFromIDList(typeName string, nodeIdList []string) []mesh.Node {
+func (n *NodeServiceMongoDB) FindNodesFromIDList(typeName string, nodeIdList []interface{}) []mesh.Node {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -177,7 +177,7 @@ func (n *NodeServiceMongoDB) FindNodeByProperty(typeName string, property string
 	return findOne(typeName, bson.M{property: value}, n.meshDbClient, n.meshDbName)
 }
 
-func (n *NodeServiceMongoDB) StoreBlob(file, filename string) (ID string, fileSize int64, retErr error) {
+func (n *NodeServiceMongoDB) StoreBlob(file, filename string) (ID interface{}, fileSize int64, retErr error) {
 
 	data, err := os.ReadFile(file)
 	fmt.Println("Got databytes", len(data), filename)
@@ -186,16 +186,14 @@ func (n *NodeServiceMongoDB) StoreBlob(file, filename string) (ID string, fileSi
 	}
 	bucket, err := gridfs.NewBucket(n.meshDbClient.Database(n.blobDbName), n.blobBucketOpts)
 	if err != nil {
-		// TODO convert ID to primitive.ObjectID
-		return primitive.NilObjectID.String(), 0, err
+		return primitive.NilObjectID, 0, err
 	}
 
 	uploadStream, err := bucket.OpenUploadStream(filename)
 	if err != nil {
-		// TODO convert ID to primitive.ObjectID
-		return primitive.NilObjectID.String(), 0, err
+		return primitive.NilObjectID, 0, err
 	}
-	fileDbId := uploadStream.FileID.(primitive.ObjectID).String()
+	fileDbId := uploadStream.FileID
 
 	defer func(uploadStream *gridfs.UploadStream) {
 		err = uploadStream.Close()
@@ -206,8 +204,7 @@ func (n *NodeServiceMongoDB) StoreBlob(file, filename string) (ID string, fileSi
 
 	size, err := uploadStream.Write(data)
 	if err != nil {
-		// TODO convert ID to primitive.ObjectID{
-		return primitive.NilObjectID.String(), 0, err
+		return primitive.NilObjectID, 0, err
 	}
 	log.Println("Write file to DB was successful. Wrote image:", fileDbId, ", File size:", fileSize)
 

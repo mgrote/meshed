@@ -75,7 +75,7 @@ func main() {
 		}
 	}
 
-	loaded, _ := mesh.NodeService.FindNodeById(commonmodels.CategoryType, catOneNode.GetID())
+	loaded, _ := mesh.NodeService.FindNodeByID(commonmodels.CategoryType, catOneNode.GetID())
 	log.Println("got", loaded)
 
 	router := apirouting.NewRouter()

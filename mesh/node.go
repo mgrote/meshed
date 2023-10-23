@@ -13,7 +13,7 @@ type NodeType interface {
 }
 
 type Node interface {
-	GetID() string
+	GetID() interface{}
 	SetID(id interface{})
 	AddChild(Node) error
 	RemoveChild(Node) error
@@ -22,8 +22,8 @@ type Node interface {
 	AddParent(Node) error
 	RemoveParent(Node) error
 	GetParents(string) []Node
-	HasChild(string, string) bool
-	HasParent(string, string) bool
+	HasChild(string, interface{}) bool
+	HasParent(string, interface{}) bool
 	RemoveAllNodes(string)
 	GetNodes(string) []Node
 	GetTypeName() string
@@ -39,16 +39,16 @@ type Node interface {
 
 type node struct {
 	//ID       primitive.ObjectID              `json:"id" bson:"_id,omitempty"`
-	ID       string              `json:"id"`
-	Version  uint16              `json:"version"`
-	TypeName string              `json:"name"`
-	nodeType NodeType            //`json:"-"`
-	Content  interface{}         `json:"content"`
-	History  history             `json:"history"`
-	Children map[string][]Node   `json:"-" bson:"-"`
-	ChShadow map[string][]string `json:"chshadow"`
-	Parents  map[string][]Node   `json:"-" bson:"-"`
-	PtShadow map[string][]string `json:"ptshadow"`
+	ID       interface{}              `json:"id" bson:"_id,omitempty"`
+	Version  uint16                   `json:"version"`
+	TypeName string                   `json:"name"`
+	nodeType NodeType                 `json:"-"`
+	Content  interface{}              `json:"content"`
+	History  history                  `json:"history"`
+	Children map[string][]Node        `json:"-" bson:"-"`
+	ChShadow map[string][]interface{} `json:"chshadow"`
+	Parents  map[string][]Node        `json:"-" bson:"-"`
+	PtShadow map[string][]interface{} `json:"ptshadow"`
 }
 
 type history struct {
@@ -64,8 +64,8 @@ func NewNode(t NodeType) Node {
 		History:  newHistory(),
 		Parents:  make(map[string][]Node),
 		Children: make(map[string][]Node),
-		ChShadow: make(map[string][]string),
-		PtShadow: make(map[string][]string),
+		ChShadow: make(map[string][]interface{}),
+		PtShadow: make(map[string][]interface{}),
 	}
 	return &n
 }
@@ -78,14 +78,14 @@ func NewNodeWithContent(t NodeType, c interface{}) Node {
 		Content:  c,
 		Parents:  make(map[string][]Node),
 		Children: make(map[string][]Node),
-		ChShadow: make(map[string][]string),
-		PtShadow: make(map[string][]string),
+		ChShadow: make(map[string][]interface{}),
+		PtShadow: make(map[string][]interface{}),
 	}
 	return &n
 }
 
 // func (n *node) GetID() primitive.ObjectID {
-func (n *node) GetID() string {
+func (n *node) GetID() interface{} {
 	return n.ID
 }
 
@@ -111,7 +111,7 @@ func (n *node) AddChild(cn Node) error {
 	log.Println("add child", cn.GetID(), "to", n.GetID())
 	if _, ok := n.Children[cn.GetTypeName()]; !ok {
 		n.Children[cn.GetTypeName()] = make([]Node, 0)
-		n.ChShadow[cn.GetTypeName()] = make([]string, 0)
+		n.ChShadow[cn.GetTypeName()] = make([]interface{}, 0)
 	}
 	n.Children[cn.GetTypeName()] = append(n.Children[cn.GetTypeName()], cn)
 	n.ChShadow[cn.GetTypeName()] = append(n.ChShadow[cn.GetTypeName()], cn.GetID())
@@ -188,7 +188,7 @@ func (n *node) AddParent(pn Node) error {
 	log.Println("add parent", pn.GetID(), "to", n.GetID())
 	if _, ok := n.Children[pn.GetTypeName()]; !ok {
 		n.Parents[pn.GetTypeName()] = make([]Node, 0)
-		n.PtShadow[pn.GetTypeName()] = make([]string, 0)
+		n.PtShadow[pn.GetTypeName()] = make([]interface{}, 0)
 	}
 	n.Parents[pn.GetTypeName()] = append(n.Children[pn.GetTypeName()], pn)
 	n.PtShadow[pn.GetTypeName()] = append(n.ChShadow[pn.GetTypeName()], pn.GetID())
@@ -248,7 +248,7 @@ func (n *node) GetParents(typeName string) []Node {
 	return n.Parents[typeName]
 }
 
-func (n *node) HasChild(typeName string, id string) bool {
+func (n *node) HasChild(typeName string, id interface{}) bool {
 	if ids, ok := n.ChShadow[typeName]; ok {
 		_, oki := containsId(ids, id)
 		return oki
@@ -256,7 +256,7 @@ func (n *node) HasChild(typeName string, id string) bool {
 	return false
 }
 
-func (n *node) HasParent(typeName string, id string) bool {
+func (n *node) HasParent(typeName string, id interface{}) bool {
 	if ids, ok := n.PtShadow[typeName]; ok {
 		_, oki := containsId(ids, id)
 		return oki
@@ -311,7 +311,7 @@ func (n *node) SaveContent(content interface{}) error {
 	return NodeService.Save(n)
 }
 
-func containsId(ids []string, id string) (int, bool) {
+func containsId(ids []interface{}, id interface{}) (int, bool) {
 	for it, slid := range ids {
 		if slid == id {
 			return it, true
@@ -332,8 +332,8 @@ func containsNode(ids []Node, n Node) (int, bool) {
 // Checks, if nodes are missing in a list with nodes with a list of given ids.
 // Returns a list with already existing and formerly missing nodes.
 // The length of the id list and the returned node list have to be equal.
-func checkMissingReferences(shadowIds []string, refs []Node, typeName string) []Node {
-	var nodeIdList = make([]string, len(shadowIds))
+func checkMissingReferences(shadowIds []interface{}, refs []Node, typeName string) []Node {
+	var nodeIdList = make([]interface{}, len(shadowIds))
 CheckExistingId:
 	for _, cid := range shadowIds {
 		for _, child := range refs {
@@ -349,7 +349,7 @@ CheckExistingId:
 	return refs
 }
 
-func removeIdFromPosition(ids []string, pos int) ([]string, bool) {
+func removeIdFromPosition(ids []interface{}, pos int) ([]interface{}, bool) {
 	if len(ids) == 1 {
 		return nil, false
 	}

@@ -60,7 +60,7 @@ func ShowNode(writer http.ResponseWriter, request *http.Request) {
 		if err != nil {
 			log.Fatal("Could not get ObjectID from", nodeid)
 		}
-		node, _ := mesh.NodeService.FindNodeById(typeName, id)
+		node, _ := mesh.NodeService.FindNodeByID(typeName, id)
 		log.Println("got node", node.GetContent(), reflect.TypeOf(node.GetContent()), reflect.TypeOf(node))
 		if err := json.NewEncoder(writer).Encode(node); err != nil {
 			log.Fatal("Error while encoding respose")
