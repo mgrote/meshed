@@ -2,7 +2,6 @@ package mesh
 
 import (
 	"fmt"
-	mesh "github.com/mgrote/meshed/meshserviceprovider/mongodb"
 	"log"
 	"time"
 
@@ -112,7 +111,7 @@ func (n *node) AddChild(cn Node) error {
 	}
 	n.Children[cn.GetTypeName()] = append(n.Children[cn.GetTypeName()], cn)
 	n.ChShadow[cn.GetTypeName()] = append(n.ChShadow[cn.GetTypeName()], cn.GetID())
-	if err := mesh.Service.Save(n); err != nil {
+	if err := NodeService.Save(n); err != nil {
 		return fmt.Errorf("%s, %s could not add child %s, %s: %w",
 			n.GetTypeName(), n.GetID().String(), cn.GetTypeName(), cn.GetID().String(), err)
 	}
@@ -145,7 +144,7 @@ func (n *node) RemoveChild(cn Node) error {
 			delete(n.Children, cn.GetTypeName())
 		}
 	}
-	if err := mesh.Service.Save(n); err != nil {
+	if err := NodeService.Save(n); err != nil {
 		return fmt.Errorf("%s, %s could not remove child %s, %s: %w",
 			n.GetTypeName(), n.GetID().String(), cn.GetTypeName(), cn.GetID().String(), err)
 	}
@@ -190,7 +189,7 @@ func (n *node) AddParent(pn Node) error {
 	n.Parents[pn.GetTypeName()] = append(n.Children[pn.GetTypeName()], pn)
 	n.PtShadow[pn.GetTypeName()] = append(n.ChShadow[pn.GetTypeName()], pn.GetID())
 
-	if err := mesh.Service.Save(n); err != nil {
+	if err := NodeService.Save(n); err != nil {
 		return fmt.Errorf("%s, %s could not add parent %s, %s: %w",
 			n.GetTypeName(), n.GetID().String(), pn.GetTypeName(), pn.GetID().String(), err)
 	}
@@ -224,7 +223,7 @@ func (n *node) RemoveParent(pn Node) error {
 		}
 	}
 
-	if err := mesh.Service.Save(n); err != nil {
+	if err := NodeService.Save(n); err != nil {
 		return fmt.Errorf("%s, %s could not remove parent %s, %s: %w",
 			n.GetTypeName(), n.GetID().String(), pn.GetTypeName(), pn.GetID().String(), err)
 	}
@@ -300,12 +299,12 @@ func (n *node) GetVersion() uint16 {
 }
 
 func (n *node) Save() error {
-	return mesh.Service.Save(n)
+	return NodeService.Save(n)
 }
 
 func (n *node) SaveContent(content interface{}) error {
 	n.SetContent(content)
-	return mesh.Service.Save(n)
+	return NodeService.Save(n)
 }
 
 func containsId(ids []primitive.ObjectID, id primitive.ObjectID) (int, bool) {
@@ -342,7 +341,7 @@ CheckExistingId:
 		}
 		nodeIdList = append(nodeIdList, cid)
 	}
-	refs = append(refs, mesh.Service.FindNodesFromIDList(typeName, nodeIdList)...)
+	refs = append(refs, NodeService.FindNodesFromIDList(typeName, nodeIdList)...)
 	return refs
 }
 
