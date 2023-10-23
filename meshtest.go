@@ -7,6 +7,7 @@ import (
 	"github.com/mgrote/meshed/commonmodels/blobs"
 	"github.com/mgrote/meshed/commonmodels/categories"
 	"github.com/mgrote/meshed/commonmodels/users"
+	"github.com/mgrote/meshed/mesh"
 	"github.com/mgrote/meshed/nodeapi/apirouting"
 	"log"
 	"net/http"
@@ -22,7 +23,7 @@ func main() {
 	flag.Parse()
 
 	// Init API with default config.
-	if err := mesh.InitApiWithConfig(pathFlag); err != nil {
+	if err := mongodb.InitApiWithConfig(pathFlag); err != nil {
 		fmt.Println("init mesh api:", err)
 		os.Exit(1)
 	}
@@ -74,7 +75,7 @@ func main() {
 		}
 	}
 
-	loaded, _ := mesh.Service.FindNodeById(commonmodels.CategoryType, catOneNode.GetID())
+	loaded, _ := mesh.NodeService.FindNodeById(commonmodels.CategoryType, catOneNode.GetID())
 	log.Println("got", loaded)
 
 	router := apirouting.NewRouter()

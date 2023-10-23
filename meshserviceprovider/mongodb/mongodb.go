@@ -1,4 +1,4 @@
-package mesh
+package mongodb
 
 import (
 	"bytes"
