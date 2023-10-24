@@ -118,7 +118,7 @@ func writeUserNotAuthorized(writer http.ResponseWriter) {
 
 func FindCategoryByName(name string) (mesh.Node, bool) {
 	category, err := mesh.NodeService.FindNodeByProperty(commonmodels.CategoryType, "name", name)
-	if err != nil && err.Error() == mesh.ErrorDocumentNotFound {
+	if err != nil && err.Error() == mesh.DocumentNotFound {
 		return nil, false
 	}
 	return category, true
@@ -126,14 +126,14 @@ func FindCategoryByName(name string) (mesh.Node, bool) {
 
 func CreateCategoryIfNotExists(name string) {
 	_, err := mesh.NodeService.FindNodeByProperty(commonmodels.CategoryType, "name", name)
-	if err != nil && err.Error() == mesh.ErrorDocumentNotFound {
+	if err != nil && err.Error() == mesh.DocumentNotFound {
 		categories.NewNode(name)
 	}
 }
 
 func FindUserByLogin(login string) (mesh.Node, bool) {
 	category, err := mesh.NodeService.FindNodeByProperty(commonmodels.UserType, "login", login)
-	if err != nil && err.Error() == mesh.ErrorDocumentNotFound {
+	if err != nil && err.Error() == mesh.DocumentNotFound {
 		return nil, false
 	}
 	return category, true

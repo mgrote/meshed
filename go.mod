@@ -5,21 +5,21 @@ go 1.20
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/franela/goblin v0.0.0-20211003143422-0a4f594942bf
+	github.com/google/uuid v1.3.1
 	github.com/gorilla/mux v1.8.0
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.28.0
 	go.mongodb.org/mongo-driver v1.12.1
 	golang.org/x/crypto v0.14.0
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 )
 
 require (
-	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/pprof v0.0.0-20230926050212-f7f687d19a98 // indirect
-	github.com/ianlancetaylor/demangle v0.0.0-20230524184225-eabc099b10ab // indirect
 	github.com/klauspost/compress v1.17.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect

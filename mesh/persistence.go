@@ -1,8 +1,9 @@
 package mesh
 
 const (
-	DefaultConfigPath     = "./config/mesh.db.properties.ini"
-	ErrorDocumentNotFound = "documentNotFound"
+	DefaultConfigPath = "./config/mesh.db.properties.ini"
+	DocumentNotFound  = "documentNotFound"
+	InvalidID         = "invalidID"
 )
 
 type DbConfig struct {
