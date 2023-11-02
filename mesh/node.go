@@ -93,8 +93,7 @@ func (n *node) SetID(ident interface{}) {
 	//if id, ok := ident.(primitive.ObjectID); ok {
 	if id, ok := ident.(string); ok {
 		n.ID = id
-	}
-	if id, ok := ident.(fmt.Stringer); ok {
+	} else if id, ok := ident.(fmt.Stringer); ok {
 		n.ID = id.String()
 		log.Println("set id to", n.ID, n.GetContent())
 	} else {

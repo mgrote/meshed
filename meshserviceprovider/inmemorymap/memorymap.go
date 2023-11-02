@@ -6,10 +6,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/mgrote/meshed/mesh"
 	"golang.org/x/exp/maps"
+	"os"
 )
 
 type NodeServiceMemoryMap struct {
 	MemoryMap map[string]map[string]mesh.Node
+	BlobMap   map[string][]byte
 }
 
 func InitApi() error {
@@ -20,6 +22,7 @@ func InitApi() error {
 func NewNodeServiceMemoryMap() *NodeServiceMemoryMap {
 	return &NodeServiceMemoryMap{
 		MemoryMap: make(map[string]map[string]mesh.Node),
+		BlobMap:   make(map[string][]byte),
 	}
 }
 
@@ -30,6 +33,9 @@ func (n *NodeServiceMemoryMap) Insert(doc mesh.Node) error {
 	id, ok := doc.GetID().(string)
 	if !ok {
 		return fmt.Errorf(mesh.InvalidID)
+	}
+	if n.MemoryMap[doc.GetTypeName()] == nil {
+		n.MemoryMap[doc.GetTypeName()] = make(map[string]mesh.Node)
 	}
 	n.MemoryMap[doc.GetTypeName()][id] = doc
 	return nil
@@ -67,6 +73,7 @@ func (n *NodeServiceMemoryMap) FindNodesByTypeName(typeName string) ([]mesh.Node
 	return maps.Values(nodeIds), ok
 }
 
+// TODO not so cool to use json marshalling and unmarshalling here, maybe an interface Content#toMap() would be better.
 func (n *NodeServiceMemoryMap) FindNodeByProperty(typeName string, property string, value string) (mesh.Node, error) {
 	for _, node := range n.MemoryMap[typeName] {
 		j, err := json.Marshal(node.GetContent())
@@ -82,12 +89,21 @@ func (n *NodeServiceMemoryMap) FindNodeByProperty(typeName string, property stri
 	return nil, fmt.Errorf(mesh.DocumentNotFound)
 }
 
+// TODO function signature is very mongodb specific, it should be more generic in future.
 func (n *NodeServiceMemoryMap) StoreBlob(file, filename string) (ID interface{}, fileSize int64, retErr error) {
-	//TODO implement me
-	panic("implement me")
+	data, err := os.ReadFile(file)
+	if err != nil {
+		return nil, 0, fmt.Errorf("could not read file %v: %w", file, err)
+	}
+	fmt.Println("Got databytes", len(data), filename)
+	n.BlobMap[filename] = data
+	return filename, int64(len(data)), nil
 }
 
 func (n *NodeServiceMemoryMap) RetrieveBlobByName(fileNameInDb string, downloadPath string) error {
-	//TODO implement me
-	panic("implement me")
+	data, ok := n.BlobMap[fileNameInDb]
+	if !ok {
+		return fmt.Errorf("could not find blob with name %v", fileNameInDb)
+	}
+	return os.WriteFile(downloadPath, data, 0644)
 }
