@@ -20,11 +20,12 @@ func main() {
 	flag.StringVar(&pathFlag, "inifiles", ".", "Path to ini files")
 	flag.Parse()
 
-	// Init API with default config.
+	// Init API with default config if you have a running mongodb.
 	//if err := mongodb.InitApiWithConfig(pathFlag); err != nil {
 	//	fmt.Println("init mesh api:", err)
 	//	os.Exit(1)
 	//}
+	// Or use the in memory map for testing purposes.
 	if err := inmemorymap.InitApi(); err != nil {
 		log.Println("init mesh api:", err)
 		os.Exit(1)

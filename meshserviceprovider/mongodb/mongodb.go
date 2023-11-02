@@ -134,19 +134,12 @@ func (n *NodeServiceMongoDB) Save(doc mesh.Node) error {
 }
 
 func (n *NodeServiceMongoDB) FindNodeByID(typeName string, ID interface{}) (mesh.Node, error) {
-	// TODO convert ID to primitive.ObjectID
-	mongoID, ok := ID.(primitive.ObjectID)
-	if !ok {
-		return nil, errors.New(ErrorNotAnObjectID)
-	}
-	return findOne(typeName, bson.M{"_id": mongoID}, n.meshDbClient, n.meshDbName)
+	return findOne(typeName, bson.M{"_id": ID}, n.meshDbClient, n.meshDbName)
 }
 
 func (n *NodeServiceMongoDB) FindNodesFromIDList(typeName string, nodeIdList []interface{}) []mesh.Node {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	// TODO convert ID to primitive.ObjectID
 
 	collection := n.meshDbClient.Database(n.meshDbName).Collection(typeName)
 	findIn := bson.M{"$in": nodeIdList}
@@ -217,7 +210,6 @@ func (n *NodeServiceMongoDB) StoreBlob(file, filename string) (ID interface{}, f
 }
 
 func (n *NodeServiceMongoDB) RetrieveBlobByName(fileNameInDb string, downloadPath string) error {
-	// return writeToFile(bson.M{"filename": fileNameInDb}, downloadPath)
 	collection := *n.blobBucketOpts.Name + ".files"
 	fsFiles := n.meshDbClient.Database(n.blobDbName).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
