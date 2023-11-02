@@ -1,7 +1,5 @@
 # editor and IDE paraphernalia
-/.idea/
 .idea
-.idea/*
 *.iml
 *.swp
 *.swo

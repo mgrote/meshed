@@ -38,11 +38,10 @@ type Node interface {
 }
 
 type node struct {
-	//ID       primitive.ObjectID              `json:"id" bson:"_id,omitempty"`
-	ID       interface{}              `json:"id" bson:"_id,omitempty"`
-	Version  uint16                   `json:"version"`
-	TypeName string                   `json:"name"`
-	nodeType NodeType                 `json:"-"`
+	ID       interface{} `json:"id" bson:"_id,omitempty"`
+	Version  uint16      `json:"version"`
+	TypeName string      `json:"name"`
+	nodeType NodeType
 	Content  interface{}              `json:"content"`
 	History  history                  `json:"history"`
 	Children map[string][]Node        `json:"-" bson:"-"`
@@ -84,21 +83,12 @@ func NewNodeWithContent(t NodeType, c interface{}) Node {
 	return &n
 }
 
-// func (n *node) GetID() primitive.ObjectID {
 func (n *node) GetID() interface{} {
 	return n.ID
 }
 
 func (n *node) SetID(ident interface{}) {
-	//if id, ok := ident.(primitive.ObjectID); ok {
-	if id, ok := ident.(string); ok {
-		n.ID = id
-	} else if id, ok := ident.(fmt.Stringer); ok {
-		n.ID = id.String()
-		log.Println("set id to", n.ID, n.GetContent())
-	} else {
-		log.Fatal("error convert ID to string", ident)
-	}
+	n.ID = ident
 }
 
 func (n *node) AddChild(cn Node) error {

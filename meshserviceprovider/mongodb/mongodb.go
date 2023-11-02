@@ -21,6 +21,7 @@ import (
 const (
 	DefaultConfigPath     = "./config/mesh.db.properties.ini"
 	ErrorDocumentNotFound = "documentNotFound"
+	ErrorNotAnObjectID    = "notAnObjectID"
 )
 
 type DbConfig struct {
@@ -109,6 +110,7 @@ func (n *NodeServiceMongoDB) Insert(doc mesh.Node) error {
 		return fmt.Errorf("could not insert document %v into database %w", doc.GetTypeName(), err)
 	}
 	// set db id to reference if not exists
+	//doc.SetID(result.InsertedID.(primitive.ObjectID))
 	doc.SetID(result.InsertedID.(primitive.ObjectID))
 	log.Println("inserted", doc.GetID(), doc.GetVersion(), doc.GetTypeName())
 	return nil
@@ -133,8 +135,11 @@ func (n *NodeServiceMongoDB) Save(doc mesh.Node) error {
 
 func (n *NodeServiceMongoDB) FindNodeByID(typeName string, ID interface{}) (mesh.Node, error) {
 	// TODO convert ID to primitive.ObjectID
-
-	return findOne(typeName, bson.M{"_id": ID}, n.meshDbClient, n.meshDbName)
+	mongoID, ok := ID.(primitive.ObjectID)
+	if !ok {
+		return nil, errors.New(ErrorNotAnObjectID)
+	}
+	return findOne(typeName, bson.M{"_id": mongoID}, n.meshDbClient, n.meshDbName)
 }
 
 func (n *NodeServiceMongoDB) FindNodesFromIDList(typeName string, nodeIdList []interface{}) []mesh.Node {
