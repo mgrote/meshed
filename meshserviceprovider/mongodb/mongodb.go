@@ -180,7 +180,7 @@ func (n *NodeServiceMongoDB) StoreBlob(file, filename string) (ID interface{}, f
 	data, err := os.ReadFile(file)
 	fmt.Println("Got databytes", len(data), filename)
 	if err != nil {
-		return "", 0, err
+		return primitive.NilObjectID, 0, err
 	}
 	bucket, err := gridfs.NewBucket(n.meshDbClient.Database(n.blobDbName), n.blobBucketOpts)
 	if err != nil {
